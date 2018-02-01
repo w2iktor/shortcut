@@ -1,4 +1,4 @@
-package pl.symentis.shorturl.shorturl.api;
+package pl.symentis.shorturl.api;
 
 import javax.ws.rs.ApplicationPath;
 
@@ -15,8 +15,8 @@ public class ApiResourceConfig extends ResourceConfig{
 	public ApiResourceConfig() {
         register(ApiListingResource.class);
         register(SwaggerSerializers.class);
-        
 		register(Shortcodes.class);
+		register(Accounts.class);
 	}
 
 }
