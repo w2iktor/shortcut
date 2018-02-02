@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Optional;
 
+import org.apache.commons.codec.binary.Base32;
 import org.springframework.stereotype.Component;
 
 import com.google.common.cache.Cache;
@@ -31,7 +32,7 @@ public class URLShortcuts {
 		String s = format("%s;%s;%d", remoteIP, url.toExternalForm(), currentTimeMillis());
 
 		byte[] hash = digest.digest(s.getBytes(StandardCharsets.UTF_8));
-		String shortcut = Base64.getEncoder().encodeToString(hash);
+		String shortcut = new Base32().encodeToString(hash);
 
 		cache.put(shortcut, url);
 

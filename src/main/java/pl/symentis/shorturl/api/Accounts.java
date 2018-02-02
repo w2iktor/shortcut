@@ -52,7 +52,7 @@ public class Accounts {
 		
 		try {
 			String shortcut = urlShortcuts.encode(shortcutReqs.getUrl(), httpRequest.getRemoteAddr());
-			return Response.created(uriInfo.getRequestUriBuilder().replacePath("/shortcodes/{shortcut}").build(shortcut)).build();
+			return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcodes/{shortcut}").build(shortcut)).build();
 		} catch (NoSuchAlgorithmException e) {
 			return Response.serverError().build();
 		}
