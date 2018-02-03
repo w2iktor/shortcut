@@ -11,22 +11,22 @@ import org.springframework.stereotype.Component;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import pl.symentis.shorturl.domain.URLShortcuts;
+import pl.symentis.shorturl.domain.ShortcutsRegistry;
 
 @Component
-@Path("shortcodes")
+@Path("/")
 @Api
-public class Shortcodes {
+public class Redirects {
 	
-	private final URLShortcuts urlShortcuts;
+	private final ShortcutsRegistry urlShortcuts;
 	
 	@Autowired
-	public Shortcodes(URLShortcuts urlShortcuts) {
+	public Redirects(ShortcutsRegistry urlShortcuts) {
 		this.urlShortcuts = urlShortcuts;
 	}
 
 	@GET
-	@Path("{shortcode}")
+	@Path("shortcodes/{shortcode}")
 	@ApiOperation("redirects caller to a URL based in provided short code")
 	public Response get(@PathParam("shortcode") String shortcut) {
 		return urlShortcuts
@@ -35,4 +35,6 @@ public class Shortcodes {
 				.orElseGet(()->Response.status(Status.NOT_FOUND))
 				.build();
 	}
+	
+	
 }

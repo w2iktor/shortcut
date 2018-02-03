@@ -1,16 +1,21 @@
 package pl.symentis.shorturl.integration;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
+import java.net.URI;
 import java.net.URL;
+
+import javax.ws.rs.core.Response.Status;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -20,8 +25,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 
+import pl.symentis.shorturl.api.AccountResponse;
+import pl.symentis.shorturl.api.CreateAccountRequest;
 import pl.symentis.shorturl.api.URLShortcutRequest;
 
 @RunWith(SpringRunner.class)
@@ -32,6 +40,9 @@ public class ShorturlApplicationIT {
 
 	@LocalServerPort
 	int port;
+	
+	@Autowired
+	ObjectMapper objectMapper;
 
 	@Before
 	public void setUp() {
@@ -62,7 +73,7 @@ public class ShorturlApplicationIT {
 		.contentType("application/json")
 		.body(new URLShortcutRequest(new URL("http://onet.pl")))
 		.when()
-		.put("/accounts/shortcode")
+		.post("/accounts/1/shortcuts")
 		.then()
 		.statusCode(201)
 		.header("Location", startsWith("http://localhost:"+port))
@@ -79,4 +90,29 @@ public class ShorturlApplicationIT {
 		.header("Location", equalTo("http://onet.pl"));
 	}
 	
+	@Test
+	public void create_new_account() throws Exception {
+		CreateAccountRequest accountRequest = new CreateAccountRequest("acc123", "account@account.com", "taxnumber");
+		String location = given()
+		.basePath("/api")
+		.contentType("application/json")
+		.body(accountRequest)
+		.when()
+		.post("/accounts/")
+		.then()
+		.statusCode(201)
+		.header("Location", equalTo("http://localhost:"+port+"/api/accounts/acc123"))
+		.extract()
+		.header("Location");
+		
+		AccountResponse accountResponse = when()
+		.get(URI.create(location))
+		.then()
+		.statusCode(Status.OK.getStatusCode())
+		.extract()
+		.as(AccountResponse.class);
+		
+		assertThat(accountResponse).isEqualToComparingFieldByField(accountRequest);
+	}
+
 }

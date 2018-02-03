@@ -15,7 +15,8 @@ public class ShorturlApplication extends WebMvcConfigurerAdapter{
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry
-			.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/2.2.10/");
+			.addResourceHandler("/swagger-ui/**")
+			.addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/2.2.10/");
 	}
 	
 	

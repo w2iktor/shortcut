@@ -17,11 +17,11 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 @Component
-public class URLShortcuts {
+public class ShortcutsRegistry {
 
 	private final Cache<String, URL> cache;
 
-	public URLShortcuts() {
+	public ShortcutsRegistry() {
 		cache = CacheBuilder.newBuilder().build();
 	}
 
