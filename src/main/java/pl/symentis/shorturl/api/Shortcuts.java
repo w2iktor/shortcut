@@ -20,12 +20,12 @@ import pl.symentis.shorturl.domain.ShortcutsRegistry;
 
 public class Shortcuts {
 
-	private final ShortcutsRegistry urlShortcuts;
+	private final ShortcutsRegistry shortcutRegitry;
 	private final String accountid;
 
-	public Shortcuts(String accountid, ShortcutsRegistry urlShortcuts) {
+	public Shortcuts(String accountid, ShortcutsRegistry shortcutRegistry) {
 		this.accountid = accountid;
-		this.urlShortcuts = urlShortcuts;
+		this.shortcutRegitry = shortcutRegistry;
 	}
 	
 	/**
@@ -33,6 +33,36 @@ public class Shortcuts {
 	 * like HTTP request or URI info.
 	 */
 	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(
+			value="generate shortcut for URL",
+			httpMethod="POST"
+			)
+	@ApiResponses(
+			{
+				@ApiResponse(code=201,message="URL shortcut created")
+			}
+			)
+	public Response generateURLShortcut(
+			@Context HttpServletRequest httpRequest,
+			@Context UriInfo uriInfo,
+			CreateShortcutRequest shortcutReqs) {
+		
+		try {
+			String shortcut = shortcutRegitry.encode(shortcutReqs.getUrl(), httpRequest.getRemoteAddr(),accountid);
+			return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcodes/{shortcut}").build(shortcut)).build();
+		} catch (NoSuchAlgorithmException e) {
+			return Response.serverError().build();
+		}
+		
+	}
+	
+	/**
+	 * An example of context parameters injections, 
+	 * like HTTP request or URI info.
+	 */
+	@PUT
+	@Path("{shortcut}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(
 			value="create shortcut for URL",
@@ -46,17 +76,13 @@ public class Shortcuts {
 	public Response createURLShortcut(
 			@Context HttpServletRequest httpRequest,
 			@Context UriInfo uriInfo,
-			URLShortcutRequest shortcutReqs) {
+			@PathParam("shortcut") String shortcut,
+			CreateShortcutRequest shortcutReqs) {
 		
-		try {
-			String shortcut = urlShortcuts.encode(shortcutReqs.getUrl(), httpRequest.getRemoteAddr());
-			return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcodes/{shortcut}").build(shortcut)).build();
-		} catch (NoSuchAlgorithmException e) {
-			return Response.serverError().build();
-		}
+			return Response.ok().build();
 		
 	}
-	
+
 	/**
 	 * An example how to deal with partial state updates, 
 	 * which have some logic in it, like checking if we are not setting validity in the past

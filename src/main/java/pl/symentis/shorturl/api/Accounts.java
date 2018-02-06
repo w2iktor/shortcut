@@ -1,7 +1,5 @@
 package pl.symentis.shorturl.api;
 
-import java.net.URI;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -16,13 +14,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.ImmutableMap;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -62,7 +57,7 @@ public class Accounts {
 	public Response getAccounts(
 			@QueryParam("offset") @DefaultValue("0") int offset,
 			@QueryParam("limit") @DefaultValue("-1") int limit) {
-		return Response.ok().build();
+		return Response.ok(accountsService.getAccounts()).build();
 	}
 
 	@GET

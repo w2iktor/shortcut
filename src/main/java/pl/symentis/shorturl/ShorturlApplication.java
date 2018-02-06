@@ -18,7 +18,5 @@ public class ShorturlApplication extends WebMvcConfigurerAdapter{
 			.addResourceHandler("/swagger-ui/**")
 			.addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/2.2.10/");
 	}
-	
-	
 
 }

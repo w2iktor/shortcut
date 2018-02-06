@@ -4,7 +4,6 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 import java.net.URI;
@@ -13,6 +12,7 @@ import java.net.URL;
 import javax.ws.rs.core.Response.Status;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,8 @@ import com.jayway.restassured.RestAssured;
 
 import pl.symentis.shorturl.api.AccountResponse;
 import pl.symentis.shorturl.api.CreateAccountRequest;
-import pl.symentis.shorturl.api.URLShortcutRequest;
+import pl.symentis.shorturl.api.CreateShortcutRequest;
+import pl.symentis.shorturl.api.RedirectsExpiryPolicy;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -43,12 +44,12 @@ public class ShorturlApplicationIT {
 	
 	@Autowired
 	ObjectMapper objectMapper;
-
+	
 	@Before
 	public void setUp() {
 		RestAssured.port = port;
 	}
-
+	
 	@Test
 	public void swagger_is_accessible() {
 
@@ -67,32 +68,25 @@ public class ShorturlApplicationIT {
 	}
 
 	@Test
-	public void generate_shorturl() throws Exception {
-		String location = given()
+	@Ignore
+	public void dont_cretate_shortcut_for_not_existing_account() throws Exception {
+		given()
 		.basePath("/api")
 		.contentType("application/json")
-		.body(new URLShortcutRequest(new URL("http://onet.pl")))
+		.body(new CreateShortcutRequest(new URL("http://onet.pl"),new RedirectsExpiryPolicy(1)))
 		.when()
 		.post("/accounts/1/shortcuts")
 		.then()
-		.statusCode(201)
-		.header("Location", startsWith("http://localhost:"+port))
-		.extract()
-		.header("Location");
-		
-		given()
-		.redirects().follow(false)
-		.basePath("/api")
-		.when()
-		.get(new URL(location))
-		.then()
-		.statusCode(301)
-		.header("Location", equalTo("http://onet.pl"));
+		.statusCode(404);
 	}
-	
+
 	@Test
 	public void create_new_account() throws Exception {
-		CreateAccountRequest accountRequest = new CreateAccountRequest("acc123", "account@account.com", "taxnumber");
+		CreateAccountRequest accountRequest = new CreateAccountRequest(
+				"acc123", 
+				"account@account.com", 
+				"taxnumber",
+				1);
 		String location = given()
 		.basePath("/api")
 		.contentType("application/json")
@@ -112,7 +106,7 @@ public class ShorturlApplicationIT {
 		.extract()
 		.as(AccountResponse.class);
 		
-		assertThat(accountResponse).isEqualToComparingFieldByField(accountRequest);
+		assertThat(accountResponse).isEqualToIgnoringGivenFields(accountRequest,"currentShortcuts");
 	}
 
 }

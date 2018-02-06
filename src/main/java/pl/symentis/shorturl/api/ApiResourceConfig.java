@@ -2,6 +2,7 @@ package pl.symentis.shorturl.api;
 
 import javax.ws.rs.ApplicationPath;
 
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,8 @@ public class ApiResourceConfig extends ResourceConfig{
 		config.setBasePath("/api");
 		config.setResourcePackage("pl.symentis.shorturl.api");
 		config.setScan(true);
-		register(config);
+		config.setTitle("ShortURL API");
+		config.setVersion("1.0.0");
 	}
 
 }
