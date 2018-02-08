@@ -16,6 +16,8 @@ import javax.ws.rs.core.UriInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.HttpStatus;
+import pl.symentis.shorturl.domain.ConflictException;
 import pl.symentis.shorturl.domain.ShortcutsRegistry;
 
 public class Shortcuts {
@@ -27,9 +29,9 @@ public class Shortcuts {
 		this.accountid = accountid;
 		this.shortcutRegitry = shortcutRegistry;
 	}
-	
+
 	/**
-	 * An example of context parameters injections, 
+	 * An example of context parameters injections,
 	 * like HTTP request or URI info.
 	 */
 	@POST
@@ -47,18 +49,18 @@ public class Shortcuts {
 			@Context HttpServletRequest httpRequest,
 			@Context UriInfo uriInfo,
 			CreateShortcutRequest shortcutReqs) {
-		
+
 		try {
 			String shortcut = shortcutRegitry.encode(shortcutReqs.getUrl(), httpRequest.getRemoteAddr(),accountid);
 			return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcuts/{shortcut}").build(shortcut)).build();
 		} catch (NoSuchAlgorithmException e) {
 			return Response.serverError().build();
 		}
-		
+
 	}
-	
+
 	/**
-	 * An example of context parameters injections, 
+	 * An example of context parameters injections,
 	 * like HTTP request or URI info.
 	 */
 	@PUT
@@ -79,13 +81,27 @@ public class Shortcuts {
 			@Context UriInfo uriInfo,
 			@PathParam("shortcut") String shortcut,
 			CreateShortcutRequest shortcutReqs) {
-		
-			return Response.ok().build();
-		
+
+
+        try {
+            int statusCode = shortcutRegitry.putOnPath(shortcutReqs.getUrl(),accountid, shortcut);
+			HttpStatus httpStatus = HttpStatus.valueOf(statusCode);
+			switch (httpStatus){
+				case OK:
+					return Response.ok().build();
+				case CREATED:
+					return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcuts/{shortcut}").build(shortcut)).build();
+				default:
+					return Response.serverError().build();
+			}
+        } catch (ConflictException e){
+        	return Response.status(Response.Status.CONFLICT).build();
+		}
+
 	}
 
 	/**
-	 * An example how to deal with partial state updates, 
+	 * An example how to deal with partial state updates,
 	 * which have some logic in it, like checking if we are not setting validity in the past
 	 */
 	@PUT

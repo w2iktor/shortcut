@@ -11,9 +11,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.google.common.cache.Cache;
@@ -40,8 +41,22 @@ public class ShortcutsRegistry {
 		cache = CacheBuilder.newBuilder().build();
 	}
 
-	public String encode(URL url, String account, String remoteIP) throws NoSuchAlgorithmException {
+	public int putOnPath(URL url, String account, String userShortcut){
+		String shortcutAccount = ofNullable(cache.getIfPresent(userShortcut))
+				.map(s -> s.account)
+				.orElse(null);
+		if (shortcutAccount != null && ! StringUtils.equals(account, shortcutAccount)){
+			throw new ConflictException(format("There is shortcut register with path %s for another account", userShortcut));
+		}
+		cache.put(userShortcut, new Shortcut(url, account));
 
+		if(shortcutAccount == null){
+			return HttpStatus.CREATED.value();
+		}
+		return HttpStatus.OK.value();
+	}
+
+	public String encode(URL url, String account, String remoteIP) throws NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
 		String s = format("%s;%s;%d", remoteIP, url.toExternalForm(), currentTimeMillis());
