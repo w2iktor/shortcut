@@ -50,7 +50,7 @@ public class Shortcuts {
 		
 		try {
 			String shortcut = shortcutRegitry.encode(shortcutReqs.getUrl(), httpRequest.getRemoteAddr(),accountid);
-			return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcodes/{shortcut}").build(shortcut)).build();
+			return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcuts/{shortcut}").build(shortcut)).build();
 		} catch (NoSuchAlgorithmException e) {
 			return Response.serverError().build();
 		}
@@ -70,7 +70,8 @@ public class Shortcuts {
 			)
 	@ApiResponses(
 			{
-				@ApiResponse(code=201,message="URL shortcut created")
+				@ApiResponse(code=201,message="URL shortcut created"),
+				@ApiResponse(code=409,message="shortcut already exists")
 			}
 			)
 	public Response createURLShortcut(

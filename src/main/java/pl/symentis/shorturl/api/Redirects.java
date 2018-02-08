@@ -26,9 +26,9 @@ public class Redirects {
 	}
 
 	@GET
-	@Path("shortcodes/{shortcode}")
+	@Path("shortcuts/{shortcut}")
 	@ApiOperation("redirects caller to a URL based in provided short code")
-	public Response get(@PathParam("shortcode") String shortcut) {
+	public Response get(@PathParam("shortcut") String shortcut) {
 		return urlShortcuts
 				.decode(shortcut)
 				.map(url -> Response.status(Status.MOVED_PERMANENTLY).header("Location", url))

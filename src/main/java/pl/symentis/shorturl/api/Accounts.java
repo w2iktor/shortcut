@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.AccountsService;
 import pl.symentis.shorturl.domain.ShortcutsRegistry;
 
@@ -53,7 +55,7 @@ public class Accounts {
 	}
 	
 	@GET
-	@ApiOperation("list all accounts")
+	@ApiOperation(value="list all accounts",code=200,response=AccountResponse.class,responseContainer="List")
 	public Response getAccounts(
 			@QueryParam("offset") @DefaultValue("0") int offset,
 			@QueryParam("limit") @DefaultValue("-1") int limit) {
@@ -63,7 +65,14 @@ public class Accounts {
 	@GET
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation("get account")
+	@ApiOperation(
+			value="get account",
+			produces=MediaType.APPLICATION_JSON)
+	@ApiResponses({
+		@ApiResponse(code=200,message="returns existing account",response=AccountResponse.class),
+		@ApiResponse(code=404,message="account doesn't exists")
+		
+	})
 	public Response getAccount(@PathParam("id") String id) {
 		return accountsService
 		.getAccount(id)
@@ -75,7 +84,7 @@ public class Accounts {
 
 	@PUT
 	@Path("{id}")
-	@ApiOperation("update account")
+	@ApiOperation(value="update account",code=200)
 	public Response updateAccount(
 			@PathParam("id") Integer id,
 			UpdateAccountRequest updateAccount) {
@@ -84,7 +93,7 @@ public class Accounts {
 	
 	@DELETE
 	@Path("{id}")
-	@ApiOperation("remove account")
+	@ApiOperation(value="remove account",code=200)
 	public Response removeAccount(@PathParam("id") Integer id) {
 		return Response.ok().build();
 	}
