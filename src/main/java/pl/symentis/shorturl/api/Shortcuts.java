@@ -16,8 +16,7 @@ import javax.ws.rs.core.UriInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.http.HttpStatus;
-import pl.symentis.shorturl.domain.ConflictException;
+import pl.symentis.shorturl.domain.Shortcut;
 import pl.symentis.shorturl.domain.ShortcutsRegistry;
 
 public class Shortcuts {
@@ -51,7 +50,7 @@ public class Shortcuts {
 			CreateShortcutRequest shortcutReqs) {
 
 		try {
-			String shortcut = shortcutRegitry.encode(shortcutReqs.getUrl(), httpRequest.getRemoteAddr(),accountid);
+			String shortcut = shortcutRegitry.generate(shortcutReqs.getUrl(), httpRequest.getRemoteAddr(),accountid);
 			return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcuts/{shortcut}").build(shortcut)).build();
 		} catch (NoSuchAlgorithmException e) {
 			return Response.serverError().build();
@@ -73,30 +72,21 @@ public class Shortcuts {
 	@ApiResponses(
 			{
 				@ApiResponse(code=201,message="URL shortcut created"),
-				@ApiResponse(code=409,message="shortcut already exists")
+				@ApiResponse(code=409,message="URL shortcut already exists")
 			}
 			)
 	public Response createURLShortcut(
-			@Context HttpServletRequest httpRequest,
+			@Context HttpServletRequest httpRequest, 
 			@Context UriInfo uriInfo,
-			@PathParam("shortcut") String shortcut,
+			@PathParam("shortcut") String shortcut, 
 			CreateShortcutRequest shortcutReqs) {
 
-
-        try {
-            int statusCode = shortcutRegitry.putOnPath(shortcutReqs.getUrl(),accountid, shortcut);
-			HttpStatus httpStatus = HttpStatus.valueOf(statusCode);
-			switch (httpStatus){
-				case OK:
-					return Response.ok().build();
-				case CREATED:
-					return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcuts/{shortcut}").build(shortcut)).build();
-				default:
-					return Response.serverError().build();
-			}
-        } catch (ConflictException e){
-        	return Response.status(Response.Status.CONFLICT).build();
-		}
+		shortcutRegitry.create(shortcutReqs, accountid, shortcut);
+		
+		return Response
+					.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcuts/{shortcut}").build(shortcut))
+					.build();
+		
 
 	}
 

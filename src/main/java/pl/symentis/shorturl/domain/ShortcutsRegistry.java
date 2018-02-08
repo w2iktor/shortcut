@@ -20,20 +20,10 @@ import org.springframework.stereotype.Component;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import pl.symentis.shorturl.api.CreateShortcutRequest;
+
 @Component
 public class ShortcutsRegistry {
-
-	class Shortcut {
-
-		URL url;
-		String account;
-
-		public Shortcut(URL url, String account) {
-			this.url = url;
-			this.account = account;
-		}
-
-	}
 
 	private final Cache<String, Shortcut> cache;
 
@@ -41,22 +31,21 @@ public class ShortcutsRegistry {
 		cache = CacheBuilder.newBuilder().build();
 	}
 
-	public int putOnPath(URL url, String account, String userShortcut){
-		String shortcutAccount = ofNullable(cache.getIfPresent(userShortcut))
-				.map(s -> s.account)
-				.orElse(null);
-		if (shortcutAccount != null && ! StringUtils.equals(account, shortcutAccount)){
-			throw new ConflictException(format("There is shortcut register with path %s for another account", userShortcut));
+	public Shortcut create(CreateShortcutRequest shortcutReqs, String account, String shortcut){
+		
+		Shortcut shortcutAccount = cache.getIfPresent(shortcut);
+		
+		if (shortcutAccount!=null){
+			throw new ConflictException(format("There is shortcut register with path %s for another account", shortcut));
 		}
-		cache.put(userShortcut, new Shortcut(url, account));
+		
+		Shortcut value = new Shortcut(shortcutReqs.getUrl(), account);
+		cache.put(shortcut, value);
 
-		if(shortcutAccount == null){
-			return HttpStatus.CREATED.value();
-		}
-		return HttpStatus.OK.value();
+		return value;
 	}
 
-	public String encode(URL url, String account, String remoteIP) throws NoSuchAlgorithmException {
+	public String generate(URL url, String account, String remoteIP) throws NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
 		String s = format("%s;%s;%d", remoteIP, url.toExternalForm(), currentTimeMillis());

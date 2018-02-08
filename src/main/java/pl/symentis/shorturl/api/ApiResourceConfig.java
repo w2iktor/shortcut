@@ -19,6 +19,8 @@ public class ApiResourceConfig extends ResourceConfig{
         register(SwaggerSerializers.class);
 		register(Redirects.class);
 		register(Accounts.class);
+		register(ConflictExceptionMapper.class);
+		
 		BeanConfig config = new BeanConfig();
 		config.setBasePath("/api");
 		config.setResourcePackage("pl.symentis.shorturl.api");

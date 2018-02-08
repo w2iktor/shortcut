@@ -94,6 +94,51 @@ public class ShorturlApplicationIT {
 	}
 	
 	@Test
+	public void create_shorturl() throws Exception {
+		String location = given()
+		.basePath("/api")
+		.contentType("application/json")
+		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicy(1)))
+		.when()
+		.put("/accounts/1/shortcuts/2")
+		.then()
+		.statusCode(201)
+		.header("Location", startsWith("http://localhost:"+port))
+		.extract()
+		.header("Location");
+		
+		given()
+		.redirects().follow(false)
+		.basePath("/api")
+		.when()
+		.get(new URL(location))
+		.then()
+		.statusCode(301)
+		.header("Location", equalTo("http://onet.pl"));
+	}
+	
+	@Test
+	public void dont_allow_to_create_two_shortcuts() throws Exception {
+		given()
+		.basePath("/api")
+		.contentType("application/json")
+		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicy(1)))
+		.when()
+		.put("/accounts/1/shortcuts/1")
+		.then()
+		.statusCode(201);
+		
+		given()
+		.basePath("/api")
+		.contentType("application/json")
+		.body(new CreateShortcutRequest(new URL("http://wp.pl"), new RedirectsExpiryPolicy(1)))
+		.when()
+		.put("/accounts/1/shortcuts/1")
+		.then()
+		.statusCode(409);
+	}
+
+	@Test
 	public void create_new_account() throws Exception {
 		CreateAccountRequest accountRequest = new CreateAccountRequest("acc123", "account@account.com", "taxnumber",1);
 		String location = given()
