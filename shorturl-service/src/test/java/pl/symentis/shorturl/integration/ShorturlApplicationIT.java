@@ -48,6 +48,7 @@ public class ShorturlApplicationIT {
 	@Before
 	public void setUp() {
 		RestAssured.port = port;
+		RestAssured.basePath = "/api";
 	}
 
 	@Test
@@ -70,7 +71,6 @@ public class ShorturlApplicationIT {
 	@Test
 	public void generate_shorturl() throws Exception {
 		String location = given()
-		.basePath("/api")
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicy(1)))
 		.when()
@@ -85,7 +85,6 @@ public class ShorturlApplicationIT {
 		
 		given()
 		.redirects().follow(false)
-		.basePath("/api")
 		.when()
 		.get(new URL(location))
 		.then()
@@ -142,7 +141,6 @@ public class ShorturlApplicationIT {
 	public void create_new_account() throws Exception {
 		CreateAccountRequest accountRequest = new CreateAccountRequest("acc123", "account@account.com", "taxnumber",1);
 		String location = given()
-		.basePath("/api")
 		.contentType("application/json")
 		.body(accountRequest)
 		.when()
