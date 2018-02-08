@@ -16,7 +16,6 @@ import javax.ws.rs.core.UriInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import pl.symentis.shorturl.domain.Shortcut;
 import pl.symentis.shorturl.domain.ShortcutsRegistry;
 
 public class Shortcuts {
@@ -84,9 +83,11 @@ public class Shortcuts {
 		shortcutRegitry.create(shortcutReqs, accountid, shortcut);
 		
 		return Response
-					.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcuts/{shortcut}").build(shortcut))
+					.created(
+							uriInfo.getRequestUriBuilder().replacePath("/api/shortcuts/{shortcut}")
+							.build(shortcut)
+					)
 					.build();
-		
 
 	}
 
