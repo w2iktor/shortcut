@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import static pl.symentis.shorturl.api.AccountResponseAssert.assertThat;
 
 import java.net.URI;
 import java.net.URL;
@@ -13,6 +14,7 @@ import java.net.URL;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,10 +31,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 
-import pl.symentis.shorturl.api.AccountResponse;
-import pl.symentis.shorturl.api.CreateAccountRequest;
-import pl.symentis.shorturl.api.CreateShortcutRequest;
-import pl.symentis.shorturl.api.RedirectsExpiryPolicy;
+import pl.symentis.shorturl.api.*;
+import pl.symentis.shorturl.integration.assertions.ExtendedAccountResponseAssert;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -175,7 +175,9 @@ public class ShorturlApplicationIT {
 
 	@Test
 	public void create_new_account() throws Exception {
-		CreateAccountRequest accountRequest = new CreateAccountRequest("acc123", "account@account.com", "taxnumber",1);
+		String email = "account@account.com";
+		String name = "acc123";
+		CreateAccountRequest accountRequest = new CreateAccountRequest(name, email, "taxnumber",1);
 		String location = given()
 		.contentType("application/json")
 		.body(accountRequest)
@@ -193,8 +195,12 @@ public class ShorturlApplicationIT {
 		.statusCode(Status.OK.getStatusCode())
 		.extract()
 		.as(AccountResponse.class);
-		
-		assertThat(accountResponse).isEqualToIgnoringGivenFields(accountRequest,"currentShortcuts");
+
+		ExtendedAccountResponseAssert.assertThat(accountResponse)
+				.isNotNull()
+				.hasEmail(email)
+				.hasName(name)
+				.hasNoRegisteredShortcuts();
 	}
 
 }
