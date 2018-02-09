@@ -19,6 +19,7 @@ public class ApiResourceConfig extends ResourceConfig{
         register(SwaggerSerializers.class);
 		register(Redirects.class);
 		register(Accounts.class);
+		register(Users.class);
 		register(ConflictExceptionMapper.class);
 		register(AccountDoesntExistExceptionMapper.class);
 		

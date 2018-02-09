@@ -127,6 +127,29 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.assertj</groupId>
+				<artifactId>assertj-assertions-generator-maven-plugin</artifactId>
+				<version>2.1.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate-assertions</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<skip>${source.skip}</skip>
+					<packages>
+						<param>pl.symentis.shorturl.api</param>
+					</packages>
+					<entryPointClassPackage>pl.symentis.shorturl.api</entryPointClassPackage>
+					<generateAssertions>true</generateAssertions>
+					<generateBddAssertions>false</generateBddAssertions>
+					<generateSoftAssertions>false</generateSoftAssertions>
+					<generateJUnitSoftAssertions>false</generateJUnitSoftAssertions>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
