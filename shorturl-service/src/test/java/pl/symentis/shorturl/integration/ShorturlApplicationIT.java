@@ -12,6 +12,7 @@ import java.net.URL;
 
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,19 +71,29 @@ public class ShorturlApplicationIT {
 
 	@Test
 	public void generate_shorturl() throws Exception {
+		
+		String accountId = RandomStringUtils.randomAscii(5);
+
+		given()
+		.contentType("application/json")
+		.body(new CreateAccountRequest(accountId, "account@account.com", "taxnumber",1))
+		.when()
+		.post("/accounts/")
+		.then()
+		.statusCode(201);
+
 		String location = given()
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicy(1)))
+		.pathParam("accountId", accountId)
 		.when()
-		.post("/accounts/1/shortcuts")
+		.post("/accounts/{accountId}/shortcuts")
 		.then()
 		.statusCode(201)
 		.header("Location", startsWith("http://localhost:"+port))
 		.extract()
 		.header("Location");
-		
-		System.out.println(location);
-		
+				
 		given()
 		.redirects().follow(false)
 		.when()
@@ -94,12 +105,24 @@ public class ShorturlApplicationIT {
 	
 	@Test
 	public void create_shorturl() throws Exception {
+		
+		String accountId = RandomStringUtils.randomAscii(5);
+
+		given()
+		.contentType("application/json")
+		.body(new CreateAccountRequest(accountId, "account@account.com", "taxnumber",1))
+		.when()
+		.post("/accounts/")
+		.then()
+		.statusCode(201);
+
 		String location = given()
 		.basePath("/api")
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicy(1)))
+		.pathParam("accountId", accountId)
 		.when()
-		.put("/accounts/1/shortcuts/2")
+		.put("/accounts/{accountId}/shortcuts/2")
 		.then()
 		.statusCode(201)
 		.header("Location", startsWith("http://localhost:"+port))
@@ -118,12 +141,24 @@ public class ShorturlApplicationIT {
 	
 	@Test
 	public void dont_allow_to_create_two_shortcuts() throws Exception {
+		
+		String accountId = RandomStringUtils.randomAscii(5);
+
+		given()
+		.contentType("application/json")
+		.body(new CreateAccountRequest(accountId, "account@account.com", "taxnumber",1))
+		.when()
+		.post("/accounts/")
+		.then()
+		.statusCode(201);
+
 		given()
 		.basePath("/api")
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicy(1)))
+		.pathParam("accountId", accountId)
 		.when()
-		.put("/accounts/1/shortcuts/1")
+		.put("/accounts/{accountId}/shortcuts/1")
 		.then()
 		.statusCode(201);
 		
@@ -131,8 +166,9 @@ public class ShorturlApplicationIT {
 		.basePath("/api")
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://wp.pl"), new RedirectsExpiryPolicy(1)))
+		.pathParam("accountId", accountId)
 		.when()
-		.put("/accounts/1/shortcuts/1")
+		.put("/accounts/{accountId}/shortcuts/1")
 		.then()
 		.statusCode(409);
 	}

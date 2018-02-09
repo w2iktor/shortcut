@@ -23,6 +23,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import pl.symentis.shorturl.domain.Account;
+import pl.symentis.shorturl.domain.AccountDoesntExistException;
 import pl.symentis.shorturl.domain.AccountsService;
 import pl.symentis.shorturl.domain.ShortcutsRegistry;
 
@@ -110,7 +112,8 @@ public class Accounts {
 	// example of sub-resource locator
 	@Path("{accountid}/shortcuts")
 	public Shortcuts shortcuts(@PathParam("accountid") String accountid) {
-		return new Shortcuts(accountid,urlShortcuts);
+		Account account = accountsService.getAccount(accountid).orElseGet(() -> {throw new AccountDoesntExistException();});
+		return new Shortcuts(account,urlShortcuts);
 	}
 	
 }

@@ -2,7 +2,6 @@ package pl.symentis.shorturl.api;
 
 import javax.ws.rs.ApplicationPath;
 
-import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +14,14 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 public class ApiResourceConfig extends ResourceConfig{
 	
 	public ApiResourceConfig() {
+		
         register(ApiListingResource.class);
         register(SwaggerSerializers.class);
 		register(Redirects.class);
 		register(Accounts.class);
 		register(ConflictExceptionMapper.class);
+		register(AccountDoesntExistExceptionMapper.class);
+		
 		
 		BeanConfig config = new BeanConfig();
 		config.setBasePath("/api");
