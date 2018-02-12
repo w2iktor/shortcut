@@ -19,7 +19,7 @@ public class ExtendedAccountResponseAssert extends AbstractAccountResponseAssert
         String assertjErrorMessage = "\nExpecting  currentShortcuts of:\n  <%s>\nto be: 0\nbut was:\n  <%s>";
 
         long actualCurrentShortcuts = actual.getCurrentShortcuts();
-        if (actualCurrentShortcuts != 1) {
+        if (actualCurrentShortcuts != 0) {
             String actualStringForm = ReflectionToStringBuilder.toString(actual);
             failWithMessage(assertjErrorMessage, actualStringForm, actualCurrentShortcuts);
         }

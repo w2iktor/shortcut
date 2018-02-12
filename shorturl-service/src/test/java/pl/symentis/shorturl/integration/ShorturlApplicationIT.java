@@ -107,7 +107,8 @@ public class ShorturlApplicationIT {
 	public void create_shorturl() throws Exception {
 		
 		String accountId = RandomStringUtils.randomAscii(5);
-
+		String shortcut = RandomStringUtils.randomAlphabetic(5);
+		
 		given()
 		.contentType("application/json")
 		.body(new CreateAccountRequest(accountId, "account@account.com", "taxnumber",1))
@@ -121,8 +122,9 @@ public class ShorturlApplicationIT {
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicy(1)))
 		.pathParam("accountId", accountId)
+		.pathParam("shortcut",shortcut)
 		.when()
-		.put("/accounts/{accountId}/shortcuts/2")
+		.put("/accounts/{accountId}/shortcuts/{shortcut}")
 		.then()
 		.statusCode(201)
 		.header("Location", startsWith("http://localhost:"+port))
@@ -131,7 +133,6 @@ public class ShorturlApplicationIT {
 		
 		given()
 		.redirects().follow(false)
-		.basePath("/api")
 		.when()
 		.get(new URL(location))
 		.then()
@@ -143,6 +144,7 @@ public class ShorturlApplicationIT {
 	public void dont_allow_to_create_two_shortcuts() throws Exception {
 		
 		String accountId = RandomStringUtils.randomAscii(5);
+		String shortcut = RandomStringUtils.randomAscii(5);		
 
 		given()
 		.contentType("application/json")
@@ -157,8 +159,9 @@ public class ShorturlApplicationIT {
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicy(1)))
 		.pathParam("accountId", accountId)
+		.pathParam("shortcut",shortcut)
 		.when()
-		.put("/accounts/{accountId}/shortcuts/1")
+		.put("/accounts/{accountId}/shortcuts/{shortcut}")
 		.then()
 		.statusCode(201);
 		
@@ -167,8 +170,9 @@ public class ShorturlApplicationIT {
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://wp.pl"), new RedirectsExpiryPolicy(1)))
 		.pathParam("accountId", accountId)
+		.pathParam("shortcut",shortcut)
 		.when()
-		.put("/accounts/{accountId}/shortcuts/1")
+		.put("/accounts/{accountId}/shortcuts/{shortcut}")
 		.then()
 		.statusCode(409);
 	}
