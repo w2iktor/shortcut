@@ -8,12 +8,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CreateShortcutRequest {
 
 	private final URL url;
-	private final ExpiryPolicy expiry;
+	private final ExpiryPolicyData expiry;
 
 	@JsonCreator
 	public CreateShortcutRequest(
 			@JsonProperty("url") URL url,
-			@JsonProperty("expiry") ExpiryPolicy expiry) {
+			@JsonProperty("expiry") ExpiryPolicyData expiry) {
 		super();
 		this.url = url;
 		this.expiry = expiry;
@@ -23,7 +23,7 @@ public class CreateShortcutRequest {
 		return url;
 	}
 
-	public ExpiryPolicy getExpiry() {
+	public ExpiryPolicyData getExpiry() {
 		return expiry;
 	}
 

@@ -7,13 +7,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("redirects")
-public class RedirectsExpiryPolicy implements ExpiryPolicy {
+public class RedirectsExpiryPolicyData implements ExpiryPolicyData {
 
 	@Range(min = 1)
 	private final long max;
 
 	@JsonCreator
-	public RedirectsExpiryPolicy(@JsonProperty("max") long max) {
+	public RedirectsExpiryPolicyData(@JsonProperty("max") long max) {
 		this.max = max;
 	}
 

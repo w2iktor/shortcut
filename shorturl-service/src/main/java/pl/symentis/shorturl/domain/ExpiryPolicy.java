@@ -1,0 +1,5 @@
+package pl.symentis.shorturl.domain;
+
+public interface ExpiryPolicy {
+
+}

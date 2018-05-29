@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.Account;
-import pl.symentis.shorturl.domain.ShortcutsRegistry;
+import pl.symentis.shorturl.service.ShortcutsRegistry;
 
 public class Shortcuts {
 
@@ -50,7 +50,7 @@ public class Shortcuts {
 			CreateShortcutRequest shortcutReqs) {
 
 		try {
-			String shortcut = shortcutRegitry.generate(shortcutReqs.getUrl(), httpRequest.getRemoteAddr(),account.getName());
+			String shortcut = shortcutRegitry.generate(shortcutReqs, httpRequest.getRemoteAddr(),account.getName());
 			return Response.created(uriInfo.getRequestUriBuilder().replacePath("/api/shortcuts/{shortcut}").build(shortcut)).build();
 		} catch (NoSuchAlgorithmException e) {
 			return Response.serverError().build();

@@ -4,7 +4,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
-import pl.symentis.shorturl.domain.AccountDoesntExistException;
+import pl.symentis.shorturl.service.AccountDoesntExistException;
 
 public class AccountDoesntExistExceptionMapper implements ExceptionMapper<AccountDoesntExistException> {
 

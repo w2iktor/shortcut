@@ -8,14 +8,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class UpdateShortcutValidityRequest {
 
 	@NotNull
-	private final ExpiryPolicy expiry;
+	private final ExpiryPolicyData expiry;
 
 	@JsonCreator
-	public UpdateShortcutValidityRequest(@JsonProperty("expiry") ExpiryPolicy expiry) {
+	public UpdateShortcutValidityRequest(@JsonProperty("expiry") ExpiryPolicyData expiry) {
 		this.expiry = expiry;
 	}
 
-	public ExpiryPolicy getExpiry() {
+	public ExpiryPolicyData getExpiry() {
 		return expiry;
 	}
 

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import pl.symentis.shorturl.domain.ShortcutsRegistry;
+import pl.symentis.shorturl.service.ShortcutsRegistry;
 
 @Component
 @Path("/")

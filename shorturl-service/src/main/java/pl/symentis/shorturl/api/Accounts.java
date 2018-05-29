@@ -24,9 +24,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.Account;
-import pl.symentis.shorturl.domain.AccountDoesntExistException;
-import pl.symentis.shorturl.domain.AccountsService;
-import pl.symentis.shorturl.domain.ShortcutsRegistry;
+import pl.symentis.shorturl.service.AccountDoesntExistException;
+import pl.symentis.shorturl.service.AccountsService;
+import pl.symentis.shorturl.service.ShortcutsRegistry;
 
 @Path("accounts")
 @Component

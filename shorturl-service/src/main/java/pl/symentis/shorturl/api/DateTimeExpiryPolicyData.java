@@ -7,12 +7,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("datetime")
-public class DateTimeExpiryPolicy implements ExpiryPolicy {
+public class DateTimeExpiryPolicyData implements ExpiryPolicyData {
 
 	private final LocalDateTime validUntil;
 
 	@JsonCreator
-	public DateTimeExpiryPolicy(@JsonProperty("validUntil") LocalDateTime validUntil) {
+	public DateTimeExpiryPolicyData(@JsonProperty("validUntil") LocalDateTime validUntil) {
 		this.validUntil = validUntil;
 	}
 

@@ -1,4 +1,4 @@
-package pl.symentis.shorturl.domain;
+package pl.symentis.shorturl.service;
 
 public class AccountDoesntExistException extends RuntimeException {
 

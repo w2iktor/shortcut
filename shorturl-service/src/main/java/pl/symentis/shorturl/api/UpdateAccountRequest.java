@@ -20,13 +20,13 @@ public class UpdateAccountRequest {
 	private final String taxnumber;
 
 	@NotNull
-	private final ExpiryPolicy expiry;
+	private final ExpiryPolicyData expiry;
 
 	public UpdateAccountRequest(
 			@JsonProperty("maxShortcuts") long maxShortcuts, 
 			@JsonProperty("email") String email, 
 			@JsonProperty("taxnumber") String taxnumber, 
-			@JsonProperty("expiry") ExpiryPolicy expiry) {
+			@JsonProperty("expiry") ExpiryPolicyData expiry) {
 		super();
 		this.maxShortcuts = maxShortcuts;
 		this.email = email;

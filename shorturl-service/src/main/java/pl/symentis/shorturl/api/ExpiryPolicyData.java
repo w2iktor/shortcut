@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 @JsonTypeInfo(use=Id.NAME,property="policy")
 @JsonSubTypes({
-	@Type(value=RedirectsExpiryPolicy.class),
-	@Type(value=DateTimeExpiryPolicy.class)})
-public interface ExpiryPolicy {
+	@Type(value=RedirectsExpiryPolicyData.class),
+	@Type(value=DateTimeExpiryPolicyData.class)})
+public interface ExpiryPolicyData {
 
 }
