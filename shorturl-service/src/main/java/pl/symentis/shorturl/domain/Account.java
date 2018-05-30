@@ -1,6 +1,6 @@
 package pl.symentis.shorturl.domain;
 
-import java.util.Map;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,9 +14,13 @@ public class Account {
 	private String taxnumber;
 	private long maxShortcuts;
 	private long currentShortcuts;
-	private Map<String,Shortcut> shortcuts;
+	private List<Shortcut> shortcuts;
 	
-	public Account(String name, String email, String taxnumber, long maxShortcuts, Map<String, Shortcut> shortcuts) {
+	public Account() {
+		
+	}
+	
+	public Account(String name, String email, String taxnumber, long maxShortcuts, List<Shortcut> shortcuts) {
 		super();
 		this.name = name;
 		this.email = email;
@@ -57,11 +61,11 @@ public class Account {
 		return currentShortcuts;
 	}
 
-	public Map<String, Shortcut> getShortcuts() {
+	public List<Shortcut> getShortcuts() {
 		return shortcuts;
 	}
 
-	public void setShortcuts(Map<String, Shortcut> shortcuts) {
+	public void setShortcuts(List<Shortcut> shortcuts) {
 		this.shortcuts = shortcuts;
 	}
 	

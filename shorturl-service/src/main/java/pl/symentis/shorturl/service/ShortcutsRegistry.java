@@ -42,13 +42,13 @@ public class ShortcutsRegistry {
 		this.shortcutRepository = shortcutRepository;
 	}
 
-	public Shortcut create(CreateShortcutRequest shortcutReqs, String accountName, String shortcut) {
+	public Shortcut create(CreateShortcutRequest shortcutReqs, String accountName, String shortcutCode) {
 
-		Account account = accountRepository.findAccountWithShortcut(accountName, shortcut);
+		Account account = accountRepository.findAccountWithShortcut(accountName, shortcutCode);
 
 		if (account != null) {
 			throw new ConflictException(
-					format("There is shortcut registered with path %s for another account", shortcut));
+					format("There is shortcut registered with path %s for another account", shortcutCode));
 		}
 
 		ExpiryPolicyData policyData = shortcutReqs.getExpiry();
@@ -60,8 +60,8 @@ public class ShortcutsRegistry {
 			policy = new DateTimeExpiryPolicy(((DateTimeExpiryPolicyData)policyData).getValidUntil());
 		}
 		
-		Shortcut value = new Shortcut(shortcutReqs.getUrl(), policy);
-		shortcutRepository.addShortcut(accountName, shortcut, value);
+		Shortcut value = new Shortcut(shortcutCode,shortcutReqs.getUrl(), policy);
+		shortcutRepository.addShortcut(accountName, shortcutCode, value);
 
 		return value;
 	}
@@ -72,7 +72,7 @@ public class ShortcutsRegistry {
 		String s = format("%s;%s;%d", remoteIP, shortcutReqs.getUrl().toExternalForm(), currentTimeMillis());
 
 		byte[] hash = digest.digest(s.getBytes(StandardCharsets.UTF_8));
-		String shortcut = new Base32().encodeToString(hash);
+		String shortcutCode = new Base32().encodeToString(hash);
 
 		ExpiryPolicy policy = null;
 		ExpiryPolicyData policyData = shortcutReqs.getExpiry();
@@ -83,22 +83,21 @@ public class ShortcutsRegistry {
 		}
 
 		
-		Shortcut value = new Shortcut(shortcutReqs.getUrl(), policy);
-		shortcutRepository.addShortcut(accountName, shortcut, value);
+		Shortcut value = new Shortcut(shortcutCode,shortcutReqs.getUrl(), policy);
+		shortcutRepository.addShortcut(accountName, shortcutCode, value);
 
-		return shortcut;
+		return shortcutCode;
 
 	}
 
 	public Optional<URL> decode(String shortcut) {
-		return ofNullable(shortcutRepository.findOne(shortcut)).map(Shortcut::getUrl);
+		return shortcutRepository.getURL(shortcut).map(Shortcut::getUrl);
 	}
 
 	public List<URL> urlsByAccount(String accountName) {
 		return Optional.ofNullable(accountRepository.findOne(accountName))
 				.map(Account::getShortcuts)
-				.orElseGet(Collections::emptyMap)
-				.values()
+				.orElseGet(Collections::emptyList)
 				.stream()
 				.map(Shortcut::getUrl)
 				.collect(toList());

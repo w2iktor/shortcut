@@ -1,6 +1,6 @@
 package pl.symentis.shorturl.service;
 
-import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptyList;
 
 import java.util.Optional;
 
@@ -25,7 +25,12 @@ public class AccountsService {
 	}
 
 	public Optional<Account> createAccount(CreateAccountRequest createAccount) {
-		Account account = new Account(createAccount.getName(),createAccount.getEmail(),createAccount.getTaxnumber(),createAccount.getMaxShortcuts(), emptyMap());
+		Account account = new Account(
+				createAccount.getName(),
+				createAccount.getEmail(),
+				createAccount.getTaxnumber(),
+				createAccount.getMaxShortcuts(), 
+				emptyList());
 		return Optional.ofNullable(accountRepository.save(account));
 	}
 
