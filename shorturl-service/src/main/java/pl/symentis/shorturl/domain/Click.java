@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@TypeAlias("click")
 @Document(collection="clicks")
 public class Click {
 

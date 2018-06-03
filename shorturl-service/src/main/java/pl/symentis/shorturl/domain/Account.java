@@ -3,8 +3,10 @@ package pl.symentis.shorturl.domain;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@TypeAlias("account")
 @Document(collection="accounts")
 public class Account {
 
