@@ -1,13 +1,11 @@
 package pl.symentis.shorturl.api;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -17,16 +15,24 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.Account;
+import pl.symentis.shorturl.domain.ShortcutStats;
+import pl.symentis.shorturl.service.ShortcutStatsService;
 import pl.symentis.shorturl.service.ShortcutsRegistry;
+
+import static java.util.stream.Collectors.toList;
+import static pl.symentis.shorturl.api.ShortcutStatsResponseBuilder.shortcutStatsResponseBuilder;
+import static pl.symentis.shorturl.api.StatsBuilder.statsBuilder;
 
 public class Shortcuts {
 
 	private final ShortcutsRegistry shortcutRegitry;
+	private final ShortcutStatsService shortcutStatsService;
 	private final Account account;
 
-	public Shortcuts(Account account, ShortcutsRegistry shortcutRegistry) {
+	public Shortcuts(Account account, ShortcutsRegistry shortcutRegistry, ShortcutStatsService shortcutStatsService) {
 		this.account = account;
 		this.shortcutRegitry = shortcutRegistry;
+		this.shortcutStatsService = shortcutStatsService;
 	}
 
 	/**
@@ -103,6 +109,28 @@ public class Shortcuts {
 			@PathParam("shortcut") String shortcut,
 			UpdateShortcutValidityRequest updateShortcutValidity) {
 		return Response.accepted().build();
+	}
+
+	@GET
+	@Path("{shortcut}/stats")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getShortcutStats(
+			@PathParam("shortcut") String shortcut) {
+		List<Stats> agents = shortcutStatsService
+				.getStats(shortcut)
+				.getAgents()
+				.stream()
+				.map(statsCounter -> statsBuilder()
+						.withId(statsCounter.id)
+						.withTotal(statsCounter.total)
+						.build())
+				.collect(toList());
+		ShortcutStatsResponse statsResponse = shortcutStatsResponseBuilder()
+				.withClicks(shortcutStatsService.getStats(shortcut).getClicks())
+				.withAgents(agents)
+				.build();
+
+		return Response.ok(statsResponse).build();
 	}
 
 }

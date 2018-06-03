@@ -26,6 +26,7 @@ import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.Account;
 import pl.symentis.shorturl.service.AccountDoesntExistException;
 import pl.symentis.shorturl.service.AccountsService;
+import pl.symentis.shorturl.service.ShortcutStatsService;
 import pl.symentis.shorturl.service.ShortcutsRegistry;
 
 @Path("accounts")
@@ -35,12 +36,14 @@ public class Accounts {
 	
 	private final ShortcutsRegistry urlShortcuts;
 	private final AccountsService accountsService;
-	
+	private final ShortcutStatsService shortcutStatsService;
+
 	@Autowired
-	public Accounts(ShortcutsRegistry urlShortcuts,AccountsService accountsService) {
+	public Accounts(ShortcutsRegistry urlShortcuts, AccountsService accountsService, ShortcutStatsService shortcutStatsService) {
 		super();
 		this.urlShortcuts = urlShortcuts;
 		this.accountsService = accountsService;
+		this.shortcutStatsService = shortcutStatsService;
 	}
 	
 	@POST
@@ -113,7 +116,7 @@ public class Accounts {
 	@Path("{accountid}/shortcuts")
 	public Shortcuts shortcuts(@PathParam("accountid") String accountid) {
 		Account account = accountsService.getAccount(accountid).orElseGet(() -> {throw new AccountDoesntExistException();});
-		return new Shortcuts(account,urlShortcuts);
+		return new Shortcuts(account,urlShortcuts, shortcutStatsService);
 	}
 	
 }

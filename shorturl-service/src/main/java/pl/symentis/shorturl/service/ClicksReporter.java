@@ -4,11 +4,15 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
+import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import pl.symentis.shorturl.dao.ClickRepository;
 import pl.symentis.shorturl.domain.Click;
+import pl.symentis.shorturl.domain.ClickBuilder;
+
+import static pl.symentis.shorturl.domain.ClickBuilder.*;
 
 @Component
 public class ClicksReporter {
@@ -26,15 +30,19 @@ public class ClicksReporter {
 			URL referer, 
 			String shortcut){
 		return CompletableFuture.supplyAsync(() -> {
-			Click click = new Click();
-			click.setAgent(agent);
-			click.setIpAddress(ipAddress);
-			click.setLocalDateTime(LocalDateTime.now());
-			click.setReferer(referer);
-			click.setShortcut(shortcut);
+			UserAgent userAgent = new UserAgent(agent);
+
+			Click click = clickBuilder()
+					.withAgent(userAgent.getBrowser().getName())
+					.withOs(userAgent.getOperatingSystem().getName())
+					.withIpAddress(ipAddress)
+					.withLocalDateTime(LocalDateTime.now())
+					.withReferer(referer)
+					.withShortcut(shortcut)
+					.build();
 			clickRepository.save(click);
 			return click;
 		});
 	}
-	
+
 }
