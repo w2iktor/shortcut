@@ -1,0 +1,7 @@
+[mongod]
+64734-1-5ce987-01.services.oktawave.com mongo_master=False
+64738-1-d4a009-01.services.oktawave.com mongo_master=False
+64737-1-89e266-01.services.oktawave.com mongo_master=False
+64736-1-a429a9-01.services.oktawave.com mongo_master=False
+64735-1-9ebb62-01.services.oktawave.com mongo_master=False
+64739-1-0f5aad-01.services.oktawave.com mongo_master=False
