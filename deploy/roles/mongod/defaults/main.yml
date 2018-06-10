@@ -1,0 +1,11 @@
+---
+# defaults file for mongod
+mongod_port: 27017
+
+# you can either bind to specific ip or network interface
+mongod_bind_ip: 0.0.0.0
+mongod_bind_intf: lo
+
+mongod_user: mongodb
+mongod_db_path: /var/lib/mongodb
+mongod_system_log_path: /var/log/mongodb

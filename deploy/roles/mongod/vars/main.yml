@@ -1,0 +1,5 @@
+---
+# vars file for mongod
+mongod_default_port: 27017
+mongod_default_port_shardsvr: 27018
+mongod_default_port_configsrv: 27019

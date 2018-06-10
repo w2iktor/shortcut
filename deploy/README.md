@@ -5,3 +5,7 @@ import to mongo from JSON:
 copy file to remote server:
 
   ansible mongod -i mongod.inventory -u root -m copy -a "src=posts-to-import.json dest=/mnt/backup/posts-to-import.json"
+
+and to setup whole training from scratch:
+
+  ansible-playbook -i mongod.inventory playbook.yml -u root

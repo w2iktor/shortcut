@@ -1,0 +1,4 @@
+---
+- hosts: mongod
+  roles:
+    - { role: mongod }
