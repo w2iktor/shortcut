@@ -6,6 +6,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 
 public final class ClickBuilder {
+	
     private ObjectId id;
     private String shortcut;
     private LocalDateTime localDateTime;

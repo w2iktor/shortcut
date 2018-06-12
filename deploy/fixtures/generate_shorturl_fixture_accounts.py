@@ -58,7 +58,7 @@ _ = Field('en', providers=[Shorturl])
 description = (
     lambda: {
         '_class': 'account',
-        'name': _('text.word'),
+        '_id': _('text.word')+str(_('numbers.between',minimum=0))+_('text.word'),
         'email': _('person.email'),
         'taxnumber': _('person.identifier', mask="###-###-###-##"),
         'maxShortcuts': _('numbers.between', minimum=10, maximum=100),
