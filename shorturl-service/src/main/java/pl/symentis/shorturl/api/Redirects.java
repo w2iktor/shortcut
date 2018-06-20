@@ -2,6 +2,7 @@ package pl.symentis.shorturl.api;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -19,6 +20,8 @@ import com.google.common.base.Strings;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import pl.symentis.shorturl.domain.ExpiryPolicy;
+import pl.symentis.shorturl.domain.Shortcut;
 import pl.symentis.shorturl.service.ClicksReporter;
 import pl.symentis.shorturl.service.ShortcutsRegistry;
 
@@ -47,6 +50,8 @@ public class Redirects {
 
 		Response response = urlShortcuts
 				.decode(shortcut)
+				.flatMap(this::isValidShortcut)
+				.map(Shortcut::getUrl)
 				.map(url -> Response.status(Status.MOVED_PERMANENTLY).header("Location", url))
 				.orElseGet(()->Response.status(Status.NOT_FOUND))
 				.build();
@@ -62,5 +67,15 @@ public class Redirects {
 		return response;
 	}
 	
+	private Optional<Shortcut> isValidShortcut(Shortcut shortcut){
+		
+		ExpiryPolicy expiryPolicy = shortcut.getExpiryPolicy();
+		
+		if(!expiryPolicy.isValidShortcut(shortcut)) {
+			return Optional.empty();
+		}
+				 
+		return Optional.of(shortcut);
+	}
 	
 }

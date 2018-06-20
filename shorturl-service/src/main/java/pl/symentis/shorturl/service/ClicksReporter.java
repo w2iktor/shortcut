@@ -1,18 +1,17 @@
 package pl.symentis.shorturl.service;
 
+import static pl.symentis.shorturl.domain.ClickBuilder.clickBuilder;
+
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
-import eu.bitwalker.useragentutils.UserAgent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import eu.bitwalker.useragentutils.UserAgent;
 import pl.symentis.shorturl.dao.ClickRepository;
 import pl.symentis.shorturl.domain.Click;
-import pl.symentis.shorturl.domain.ClickBuilder;
-
-import static pl.symentis.shorturl.domain.ClickBuilder.*;
 
 @Component
 public class ClicksReporter {

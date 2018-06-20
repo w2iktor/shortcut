@@ -17,4 +17,9 @@ public class RedirectsExpiryPolicy implements ExpiryPolicy {
 		return max;
 	}
 
+	@Override
+	public boolean isValidShortcut(Shortcut shortcut) {
+		return shortcut.getDecodeCounter()<=getMax();
+	}
+
 }

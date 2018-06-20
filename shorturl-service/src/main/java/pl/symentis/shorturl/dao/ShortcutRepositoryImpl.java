@@ -5,6 +5,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -38,7 +39,10 @@ public class ShortcutRepositoryImpl implements CustomizedShortcutRepository {
 				where("shortcuts.shortcut").is(shortcut).getCriteriaObject(), 
 				where("shortcuts").elemMatch(where("shortcut").is(shortcut)).getCriteriaObject());
 		
-		return Optional.ofNullable(mongoTemplate.findOne(query,Account.class))
+		Update update = new Update().inc("shortcuts.$.counter", 1);
+		
+		return Optional.ofNullable(
+				mongoTemplate.findAndModify(query, update, new FindAndModifyOptions().returnNew(true), Account.class ))
 				.map(Account::getShortcuts)
 				.map(s -> s.get(0));
 	}

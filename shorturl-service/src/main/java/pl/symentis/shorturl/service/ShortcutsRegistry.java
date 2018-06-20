@@ -2,7 +2,6 @@ package pl.symentis.shorturl.service;
 
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 import java.net.URL;
@@ -60,7 +59,7 @@ public class ShortcutsRegistry {
 			policy = new DateTimeExpiryPolicy(((DateTimeExpiryPolicyData)policyData).getValidUntil());
 		}
 		
-		Shortcut value = new Shortcut(shortcutCode,shortcutReqs.getUrl(), policy);
+		Shortcut value = new Shortcut(shortcutCode,shortcutReqs.getUrl(), policy, 0);
 		shortcutRepository.addShortcut(accountName, shortcutCode, value);
 
 		return value;
@@ -83,15 +82,15 @@ public class ShortcutsRegistry {
 		}
 
 		
-		Shortcut value = new Shortcut(shortcutCode,shortcutReqs.getUrl(), policy);
+		Shortcut value = new Shortcut(shortcutCode,shortcutReqs.getUrl(), policy, 0);
 		shortcutRepository.addShortcut(accountName, shortcutCode, value);
 
 		return shortcutCode;
 
 	}
 
-	public Optional<URL> decode(String shortcut) {
-		return shortcutRepository.getURL(shortcut).map(Shortcut::getUrl);
+	public Optional<Shortcut> decode(String shortcut) {
+		return shortcutRepository.getURL(shortcut);
 	}
 
 	public List<URL> urlsByAccount(String accountName) {

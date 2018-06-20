@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
-import static pl.symentis.shorturl.api.AccountResponseAssert.assertThat;
 
 import java.net.URI;
 import java.net.URL;
@@ -14,7 +13,6 @@ import java.net.URL;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +29,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 
-import pl.symentis.shorturl.api.*;
+import pl.symentis.shorturl.api.AccountResponse;
+import pl.symentis.shorturl.api.CreateAccountRequest;
+import pl.symentis.shorturl.api.CreateShortcutRequest;
+import pl.symentis.shorturl.api.RedirectsExpiryPolicyData;
 import pl.symentis.shorturl.integration.assertions.ExtendedAccountResponseAssert;
 
 @RunWith(SpringRunner.class)
@@ -72,7 +73,7 @@ public class ShorturlApplicationIT {
 	@Test
 	public void generate_shorturl() throws Exception {
 		
-		String accountId = RandomStringUtils.randomAscii(5);
+		String accountId = generateRandomString();
 
 		given()
 		.contentType("application/json")
@@ -102,12 +103,13 @@ public class ShorturlApplicationIT {
 		.statusCode(301)
 		.header("Location", equalTo("http://onet.pl"));
 	}
+
 	
 	@Test
 	public void create_shorturl() throws Exception {
 		
-		String accountId = RandomStringUtils.randomAscii(5);
-		String shortcut = RandomStringUtils.randomAlphabetic(5);
+		String accountId = generateRandomString();
+		String shortcut = generateRandomString();
 		
 		given()
 		.contentType("application/json")
@@ -118,7 +120,6 @@ public class ShorturlApplicationIT {
 		.statusCode(201);
 
 		String location = given()
-		.basePath("/api")
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicyData(1)))
 		.pathParam("accountId", accountId)
@@ -143,8 +144,8 @@ public class ShorturlApplicationIT {
 	@Test
 	public void dont_allow_to_create_two_shortcuts() throws Exception {
 		
-		String accountId = RandomStringUtils.randomAscii(5);
-		String shortcut = RandomStringUtils.randomAscii(5);		
+		String accountId = generateRandomString();
+		String shortcut = generateRandomString();		
 
 		given()
 		.contentType("application/json")
@@ -155,7 +156,6 @@ public class ShorturlApplicationIT {
 		.statusCode(201);
 
 		given()
-		.basePath("/api")
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://onet.pl"), new RedirectsExpiryPolicyData(1)))
 		.pathParam("accountId", accountId)
@@ -166,7 +166,6 @@ public class ShorturlApplicationIT {
 		.statusCode(201);
 		
 		given()
-		.basePath("/api")
 		.contentType("application/json")
 		.body(new CreateShortcutRequest(new URL("http://wp.pl"), new RedirectsExpiryPolicyData(1)))
 		.pathParam("accountId", accountId)
@@ -207,4 +206,8 @@ public class ShorturlApplicationIT {
 				.hasNoRegisteredShortcuts();
 	}
 
+	private static String generateRandomString() {
+		return RandomStringUtils.randomAlphanumeric(5);
+	}
+	
 }

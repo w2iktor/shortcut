@@ -1,11 +1,20 @@
 package pl.symentis.shorturl.api;
 
+import static java.util.stream.Collectors.toList;
+import static pl.symentis.shorturl.api.ShortcutStatsResponseBuilder.shortcutStatsResponseBuilder;
+import static pl.symentis.shorturl.api.StatsBuilder.statsBuilder;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -15,13 +24,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.Account;
-import pl.symentis.shorturl.domain.ShortcutStats;
 import pl.symentis.shorturl.service.ShortcutStatsService;
 import pl.symentis.shorturl.service.ShortcutsRegistry;
-
-import static java.util.stream.Collectors.toList;
-import static pl.symentis.shorturl.api.ShortcutStatsResponseBuilder.shortcutStatsResponseBuilder;
-import static pl.symentis.shorturl.api.StatsBuilder.statsBuilder;
 
 public class Shortcuts {
 
