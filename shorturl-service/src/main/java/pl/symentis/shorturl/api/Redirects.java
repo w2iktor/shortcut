@@ -5,11 +5,9 @@ import java.net.URL;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -40,6 +38,7 @@ public class Redirects {
 	}
 
 	@GET
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("shortcuts/{shortcut}")
 	@ApiOperation("redirects caller to a URL based in provided short code")
 	public Response get(

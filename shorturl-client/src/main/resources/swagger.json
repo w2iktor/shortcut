@@ -1,1 +1,483 @@
-{"swagger":"2.0","info":{},"basePath":"/api","paths":{"/accounts/{id}":{"get":{"summary":"get account","description":"","operationId":"getAccount","produces":["application/json"],"parameters":[{"name":"id","in":"path","required":true,"type":"string"}],"responses":{"200":{"description":"returns existing account","schema":{"$ref":"#/definitions/AccountResponse"}},"404":{"description":"account doesn't exists"}}},"put":{"summary":"update account","description":"","operationId":"updateAccount","parameters":[{"name":"id","in":"path","required":true,"type":"integer","format":"int32"},{"in":"body","name":"body","required":false,"schema":{"$ref":"#/definitions/UpdateAccountRequest"}}],"responses":{"default":{"description":"successful operation"}}},"delete":{"summary":"remove account","description":"","operationId":"removeAccount","parameters":[{"name":"id","in":"path","required":true,"type":"integer","format":"int32"}],"responses":{"default":{"description":"successful operation"}}}},"/accounts":{"get":{"summary":"list all accounts","description":"","operationId":"getAccounts","parameters":[{"name":"offset","in":"query","required":false,"type":"integer","default":0,"format":"int32"},{"name":"limit","in":"query","required":false,"type":"integer","default":-1,"format":"int32"}],"responses":{"200":{"description":"successful operation","schema":{"type":"array","items":{"$ref":"#/definitions/AccountResponse"}}}}},"post":{"summary":"create account","description":"","operationId":"createAccount","consumes":["application/json"],"parameters":[{"in":"body","name":"body","required":false,"schema":{"$ref":"#/definitions/CreateAccountRequest"}}],"responses":{"default":{"description":"successful operation"}}}},"/accounts/{accountid}/shortcuts":{"post":{"summary":"generate shortcut for URL","description":"","operationId":"generateURLShortcut","consumes":["application/json"],"parameters":[{"in":"body","name":"body","required":false,"schema":{"$ref":"#/definitions/CreateShortcutRequest"}},{"name":"accountid","in":"path","required":true,"type":"string"}],"responses":{"201":{"description":"URL shortcut created"}}}},"/accounts/{accountid}/shortcuts/{shortcut}":{"put":{"summary":"create shortcut for URL","description":"","operationId":"createURLShortcut","consumes":["application/json"],"parameters":[{"name":"shortcut","in":"path","required":true,"type":"string"},{"in":"body","name":"body","required":false,"schema":{"$ref":"#/definitions/CreateShortcutRequest"}},{"name":"accountid","in":"path","required":true,"type":"string"}],"responses":{"201":{"description":"URL shortcut created"},"409":{"description":"shortcut already exists"}}}},"/accounts/{accountid}/shortcuts/{shortcut}/validity":{"put":{"operationId":"updateShortcutValidity","consumes":["application/json"],"parameters":[{"name":"shortcut","in":"path","required":true,"type":"string"},{"in":"body","name":"body","required":false,"schema":{"$ref":"#/definitions/UpdateShortcutValidityRequest"}},{"name":"accountid","in":"path","required":true,"type":"string"}],"responses":{"default":{"description":"successful operation"}}}},"/accounts/{id}/inactive":{"put":{"summary":"change account status, you can activate or deactivate it","description":"","operationId":"inactivateAccount","parameters":[{"name":"id","in":"path","required":true,"type":"integer","format":"int32"},{"in":"body","name":"body","required":false,"schema":{"$ref":"#/definitions/InactivateAccountRequest"}}],"responses":{"default":{"description":"successful operation"}}}},"/shortcuts/{shortcut}":{"get":{"summary":"redirects caller to a URL based in provided short code","description":"","operationId":"get","parameters":[{"name":"shortcut","in":"path","required":true,"type":"string"}],"responses":{"default":{"description":"successful operation"}}}}},"definitions":{"AccountResponse":{"type":"object","properties":{"name":{"type":"string","readOnly":true},"email":{"type":"string","readOnly":true},"taxnumber":{"type":"string","readOnly":true},"maxShortcuts":{"type":"integer","format":"int64","readOnly":true},"currentShortcuts":{"type":"integer","format":"int64","readOnly":true}}},"UpdateAccountRequest":{"type":"object"},"Shortcuts":{"type":"object"},"CreateShortcutRequest":{"type":"object","properties":{"url":{"type":"string","format":"url","readOnly":true},"expiry":{"readOnly":true,"$ref":"#/definitions/ExpiryPolicy"}}},"DateTimeExpiryPolicy":{"allOf":[{"$ref":"#/definitions/ExpiryPolicy"},{"type":"object","properties":{"validUntil":{"type":"string","format":"date-time","readOnly":true}}}]},"ExpiryPolicy":{"type":"object","discriminator":"policy"},"RedirectsExpiryPolicy":{"allOf":[{"$ref":"#/definitions/ExpiryPolicy"},{"type":"object","properties":{"max":{"type":"integer","format":"int64","readOnly":true}}}]},"UpdateShortcutValidityRequest":{"type":"object","required":["expiry"],"properties":{"expiry":{"readOnly":true,"$ref":"#/definitions/ExpiryPolicy"}}},"InactivateAccountRequest":{"type":"object","properties":{"reason":{"type":"string"}}},"CreateAccountRequest":{"type":"object","properties":{"name":{"type":"string","readOnly":true},"email":{"type":"string","readOnly":true},"taxnumber":{"type":"string","readOnly":true},"maxShortcuts":{"type":"integer","format":"int64","readOnly":true}}}}}
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "ShortURL API"
+  },
+  "basePath": "/api",
+  "host": "localhost:8080",
+  "paths": {
+    "/accounts": {
+      "get": {
+        "summary": "list all accounts",
+        "description": "",
+        "operationId": "getAccounts",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 0,
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": -1,
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AccountResponse"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "create account",
+        "description": "",
+        "operationId": "createAccount",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/CreateAccountRequest"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/accounts/{id}": {
+      "get": {
+        "summary": "get account",
+        "description": "",
+        "operationId": "getAccount",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns existing account",
+            "schema": {
+              "$ref": "#/definitions/AccountResponse"
+            }
+          },
+          "404": {
+            "description": "account doesn't exists"
+          }
+        }
+      },
+      "put": {
+        "summary": "update account",
+        "description": "",
+        "operationId": "updateAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/UpdateAccountRequest"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "summary": "remove account",
+        "description": "",
+        "operationId": "removeAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/accounts/{id}/inactive": {
+      "put": {
+        "summary": "change account status, you can activate or deactivate it",
+        "description": "",
+        "operationId": "inactivateAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/InactivateAccountRequest"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/accounts/{accountid}/shortcuts": {
+      "post": {
+        "summary": "generate shortcut for URL",
+        "description": "",
+        "operationId": "generateURLShortcut",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/CreateShortcutRequest"
+            }
+          },
+          {
+            "name": "accountid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "URL shortcut created"
+          }
+        }
+      }
+    },
+    "/accounts/{accountid}/shortcuts/{shortcut}": {
+      "put": {
+        "summary": "create shortcut for URL",
+        "description": "",
+        "operationId": "createURLShortcut",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "shortcut",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/CreateShortcutRequest"
+            }
+          },
+          {
+            "name": "accountid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "URL shortcut created"
+          },
+          "409": {
+            "description": "URL shortcut already exists"
+          }
+        }
+      }
+    },
+    "/accounts/{accountid}/shortcuts/{shortcut}/validity": {
+      "put": {
+        "operationId": "updateShortcutValidity",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "shortcut",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/UpdateShortcutValidityRequest"
+            }
+          },
+          {
+            "name": "accountid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/accounts/{accountid}/shortcuts/{shortcut}/stats": {
+      "get": {
+        "operationId": "getShortcutStats",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "shortcut",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accountid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/shortcuts/{shortcut}": {
+      "get": {
+        "summary": "redirects caller to a URL based in provided short code",
+        "description": "",
+        "operationId": "get",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "shortcut",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Referer",
+            "in": "header",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateAccountRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "readOnly": true
+        },
+        "taxnumber": {
+          "type": "string",
+          "readOnly": true
+        },
+        "maxShortcuts": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        }
+      }
+    },
+    "AccountResponse": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "readOnly": true
+        },
+        "taxnumber": {
+          "type": "string",
+          "readOnly": true
+        },
+        "maxShortcuts": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "currentShortcuts": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        }
+      }
+    },
+    "UpdateAccountRequest": {
+      "type": "object"
+    },
+    "InactivateAccountRequest": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "Shortcuts": {
+      "type": "object"
+    },
+    "CreateShortcutRequest": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "url",
+          "readOnly": true
+        },
+        "expiry": {
+          "readOnly": true,
+          "$ref": "#/definitions/ExpiryPolicyData"
+        }
+      }
+    },
+    "DateTimeExpiryPolicyData": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ExpiryPolicyData"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "validUntil": {
+              "type": "string",
+              "format": "date-time",
+              "readOnly": true
+            }
+          }
+        }
+      ]
+    },
+    "ExpiryPolicyData": {
+      "type": "object",
+      "discriminator": "policy"
+    },
+    "RedirectsExpiryPolicyData": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ExpiryPolicyData"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "max": {
+              "type": "integer",
+              "format": "int64",
+              "readOnly": true
+            }
+          }
+        }
+      ]
+    },
+    "UpdateShortcutValidityRequest": {
+      "type": "object",
+      "required": [
+        "expiry"
+      ],
+      "properties": {
+        "expiry": {
+          "readOnly": true,
+          "$ref": "#/definitions/ExpiryPolicyData"
+        }
+      }
+    }
+  }
+}

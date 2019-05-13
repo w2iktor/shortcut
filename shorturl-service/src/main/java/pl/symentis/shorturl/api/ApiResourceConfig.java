@@ -21,14 +21,15 @@ public class ApiResourceConfig extends ResourceConfig{
 		register(Accounts.class);
 		register(ConflictExceptionMapper.class);
 		register(AccountDoesntExistExceptionMapper.class);
+		register(CorsFilter.class);
 		
 		
 		BeanConfig config = new BeanConfig();
 		config.setBasePath("/api");
 		config.setResourcePackage("pl.symentis.shorturl.api");
-		config.setScan(true);
 		config.setTitle("ShortURL API");
 		config.setVersion("1.0.0");
+		config.setScan(true);
 	}
 
 }

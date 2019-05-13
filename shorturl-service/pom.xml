@@ -5,9 +5,8 @@
 		<groupId>pl.symentis.shorturl</groupId>
 		<artifactId>shorturl</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
-
+	<packaging>jar</packaging>
 	<artifactId>shorturl-service</artifactId>
 
 	<dependencies>
@@ -139,7 +138,6 @@
 			<plugin>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-assertions-generator-maven-plugin</artifactId>
-				<version>2.1.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -149,10 +147,12 @@
 				</executions>
 				<configuration>
 					<skip>${source.skip}</skip>
+					<quiet>true</quiet>
 					<packages>
 						<param>pl.symentis.shorturl.api</param>
+						<param>pl.symentis.shorturl.domain</param>
 					</packages>
-					<entryPointClassPackage>pl.symentis.shorturl.api</entryPointClassPackage>
+					<entryPointClassPackage>pl.symentis.shorturl.assertion</entryPointClassPackage>
 					<generateAssertions>true</generateAssertions>
 					<generateBddAssertions>false</generateBddAssertions>
 					<generateSoftAssertions>false</generateSoftAssertions>

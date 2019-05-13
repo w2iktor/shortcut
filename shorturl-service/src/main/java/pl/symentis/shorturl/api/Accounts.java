@@ -16,13 +16,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.Account;
 import pl.symentis.shorturl.service.AccountDoesntExistException;
 import pl.symentis.shorturl.service.AccountsService;
@@ -48,10 +45,11 @@ public class Accounts {
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation("create account")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "create account")
 	public Response createAccount(
 			@Context UriInfo uriInfo,
-			CreateAccountRequest createAccount) {
+			@ApiParam CreateAccountRequest createAccount) {
 		return accountsService
 		.createAccount(createAccount)
 		.map(account -> Response.created(uriInfo.getRequestUriBuilder().path(Accounts.class, "getAccount").build(account.getName())))
@@ -60,6 +58,7 @@ public class Accounts {
 	}
 	
 	@GET
+	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value="list all accounts",code=200,response=AccountResponse.class,responseContainer="List")
 	public Response getAccounts(
 			@QueryParam("offset") @DefaultValue("0") int offset,

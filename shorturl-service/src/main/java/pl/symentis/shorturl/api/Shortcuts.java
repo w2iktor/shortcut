@@ -45,6 +45,7 @@ public class Shortcuts {
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(
 			value="generate shortcut for URL",
 			httpMethod="POST"
@@ -75,6 +76,7 @@ public class Shortcuts {
 	@PUT
 	@Path("{shortcut}")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(
 			value="create shortcut for URL",
 			httpMethod="PUT"
