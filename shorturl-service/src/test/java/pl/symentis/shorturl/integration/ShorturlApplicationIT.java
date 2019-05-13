@@ -14,6 +14,8 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fakemongo.junit.FongoRule;
 import com.jayway.restassured.RestAssured;
 
 import pl.symentis.shorturl.api.AccountResponse;
@@ -46,7 +49,7 @@ public class ShorturlApplicationIT {
 	
 	@Autowired
 	ObjectMapper objectMapper;
-
+	
 	@Before
 	public void setUp() {
 		RestAssured.port = port;
