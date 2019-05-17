@@ -1,16 +1,21 @@
 package pl.symentis.shorturl.api;
 
+import static java.util.stream.Collectors.toList;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import static pl.symentis.shorturl.api.ShortcutStatsResponseBuilder.shortcutStatsResponseBuilder;
+import static pl.symentis.shorturl.api.StatsBuilder.statsBuilder;
 
 import java.net.MalformedURLException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -69,13 +74,13 @@ public class Shortcuts {
 	@ApiOperation(
 			value="create shortcut for URL",
 			httpMethod="PUT"
-			)
+	)
 	@ApiResponses(
 			{
 				@ApiResponse(code=201,message="URL shortcut created"),
 				@ApiResponse(code=409,message="URL shortcut already exists")
 			}
-			)
+	)
 	public ResponseEntity<Void> createURLShortcut(
 	    @PathVariable("accountid") String accountid,
 			@PathVariable("shortcut") String shortcut, 
@@ -89,40 +94,37 @@ public class Shortcuts {
 					).build();
 
 	}
-//
-//	/**
-//	 * An example how to deal with partial state updates,
-//	 * which have some logic in it, like checking if we are not setting validity in the past
-//	 */
-//	@PUT
-//	@Path("{shortcut}/validity")
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	public Response updateShortcutValidity(
-//			@PathParam("shortcut") String shortcut,
-//			UpdateShortcutValidityRequest updateShortcutValidity) {
-//		return Response.accepted().build();
-//	}
-//
-//	@GET
-//	@Path("{shortcut}/stats")
-//	@Produces(MediaType.APPLICATION_JSON)
-//	public Response getShortcutStats(
-//			@PathParam("shortcut") String shortcut) {
-//		List<Stats> agents = shortcutStatsService
-//				.getStats(shortcut)
-//				.getAgents()
-//				.stream()
-//				.map(statsCounter -> statsBuilder()
-//						.withId(statsCounter.id)
-//						.withTotal(statsCounter.total)
-//						.build())
-//				.collect(toList());
-//		ShortcutStatsResponse statsResponse = shortcutStatsResponseBuilder()
-//				.withClicks(shortcutStatsService.getStats(shortcut).getClicks())
-//				.withAgents(agents)
-//				.build();
-//
-//		return Response.ok(statsResponse).build();
-//	}
+
+	@PutMapping(
+	    path = "{shortcut}/validity",
+	    consumes = MediaType.APPLICATION_JSON_VALUE
+	)
+	public ResponseEntity<Void> updateShortcutValidity(
+			@PathVariable("shortcut") String shortcut,
+			UpdateShortcutValidityRequest updateShortcutValidity) {
+		return ResponseEntity.accepted().build();
+	}
+
+	@GetMapping(
+	    path = "{shortcut}/stats",
+	    produces = MediaType.APPLICATION_JSON_VALUE
+	)
+	public ResponseEntity<ShortcutStatsResponse> getShortcutStats(
+			@PathVariable("shortcut") String shortcut) {
+		List<Stats> agents = shortcutStatsService
+				.getStats(shortcut)
+				.getAgents()
+				.stream()
+        .map(statsCounter -> statsBuilder()
+						.withId(statsCounter.id)
+						.withTotal(statsCounter.total)
+						.build())
+				.collect(toList());
+		ShortcutStatsResponse statsResponse = shortcutStatsResponseBuilder()
+				.withClicks(shortcutStatsService.getStats(shortcut).getClicks())
+				.withAgents(agents)
+				.build();
+		return ResponseEntity.ok(statsResponse);
+	}
 
 }

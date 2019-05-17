@@ -1,10 +1,10 @@
 # docker-compose.yaml
-version: "2"
+version: "3.3"
 services:
-  swagger_ui:
-    environment:
-      - SWAGGER_JSON=/swagger.json
-    image:   "swaggerapi/swagger-ui"
-    volumes: ["./shorturl-client/src/main/resources/swagger.json:/swagger.json"]
-    restart: always
-    ports:   ["80:8080"]
+  shorturl-service:
+    build:  shorturl-service
+    ports:   ["8080:8080"]
+    links:
+      - mongodb
+  mongodb:
+    image: "mongo:3.4-xenial"
