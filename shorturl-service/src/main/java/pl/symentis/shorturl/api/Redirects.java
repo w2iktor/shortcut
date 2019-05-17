@@ -5,14 +5,15 @@ import java.net.URL;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.base.Strings;
 
@@ -23,8 +24,8 @@ import pl.symentis.shorturl.domain.Shortcut;
 import pl.symentis.shorturl.service.ClicksReporter;
 import pl.symentis.shorturl.service.ShortcutsRegistry;
 
-@Component
-@Path("/")
+@RestController
+@RequestMapping(path = "/redirects")
 @Api
 public class Redirects {
 	
@@ -37,25 +38,26 @@ public class Redirects {
 		this.clicksReporter = clicksReporter;
 	}
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("shortcuts/{shortcut}")
+	@GetMapping ( 
+	    path = "{shortcut}"
+	)
 	@ApiOperation("redirects caller to a URL based in provided short code")
-	public Response get(
-			@PathParam("shortcut") String shortcut,
-			@HeaderParam("User-Agent") String agent,
-			@HeaderParam("Referer") String referer,			
-			@Context HttpServletRequest httpRequest) throws MalformedURLException {
+	public ResponseEntity<Void> get(
+			@PathVariable("shortcut") String shortcut,
+			@RequestHeader("User-Agent") String agent,
+			@RequestHeader( name = "Referer", required = false) String referer,
+			HttpServletRequest httpRequest
+	    ) throws MalformedURLException {
 
-		Response response = urlShortcuts
+		ResponseEntity<Void> response = urlShortcuts
 				.decode(shortcut)
 				.flatMap(this::isValidShortcut)
 				.map(Shortcut::getUrl)
-				.map(url -> Response.status(Status.MOVED_PERMANENTLY).header("Location", url))
-				.orElseGet(()->Response.status(Status.NOT_FOUND))
+				.map(url -> ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).header("Location", url.toString()))
+				.orElseGet(()->ResponseEntity.status(HttpStatus.NOT_FOUND))
 				.build();
 		
-		if(response.getStatusInfo()==Status.MOVED_PERMANENTLY) {
+		if(response.getStatusCode()==HttpStatus.MOVED_PERMANENTLY) {
 			URL refererURL = null;
 			if(!Strings.isNullOrEmpty(referer)) {
 				refererURL = new URL(referer);

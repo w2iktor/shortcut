@@ -94,7 +94,7 @@ public class ShortcutsRegistry {
 	}
 
 	public List<URL> urlsByAccount(String accountName) {
-		return Optional.ofNullable(accountRepository.findOne(accountName))
+		return accountRepository.findById(accountName)
 				.map(Account::getShortcuts)
 				.orElseGet(Collections::emptyList)
 				.stream()

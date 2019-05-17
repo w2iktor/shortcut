@@ -1,33 +1,32 @@
 package pl.symentis.shorturl.api;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
-import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.Account;
-import pl.symentis.shorturl.service.AccountDoesntExistException;
 import pl.symentis.shorturl.service.AccountsService;
 import pl.symentis.shorturl.service.ShortcutStatsService;
 import pl.symentis.shorturl.service.ShortcutsRegistry;
 
-@Path("accounts")
-@Component
+@RestController
+@RequestMapping(path = "/api/accounts")
 @Api
 public class Accounts {
 	
@@ -43,79 +42,79 @@ public class Accounts {
 		this.shortcutStatsService = shortcutStatsService;
 	}
 	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
+	@PostMapping(
+	    consumes = MediaType.APPLICATION_JSON_VALUE,
+	    produces = MediaType.APPLICATION_JSON_VALUE
+	)
 	@ApiOperation(value = "create account")
-	public Response createAccount(
-			@Context UriInfo uriInfo,
-			@ApiParam CreateAccountRequest createAccount) {
+	public ResponseEntity<Void> createAccount(
+			@ApiParam @RequestBody CreateAccountRequest createAccount) {
+	  
 		return accountsService
 		.createAccount(createAccount)
-		.map(account -> Response.created(uriInfo.getRequestUriBuilder().path(Accounts.class, "getAccount").build(account.getName())))
-		.orElseGet(() -> Response.status(Status.CONFLICT))
+		.map(account -> ResponseEntity.created(ControllerLinkBuilder.linkTo(Accounts.class).slash(account.getName()).toUri()))
+		.orElseGet(() -> ResponseEntity.status(HttpStatus.CONFLICT))
 		.build();
 	}
 	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value="list all accounts",code=200,response=AccountResponse.class,responseContainer="List")
-	public Response getAccounts(
-			@QueryParam("offset") @DefaultValue("0") int offset,
-			@QueryParam("limit") @DefaultValue("-1") int limit) {
-		return Response.ok(accountsService.getAccounts()).build();
+	@GetMapping(
+	    produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value="list all accounts",code=200,response=GetAccountResponse.class,responseContainer="List")
+	public ResponseEntity<List<Account>> getAccounts(
+			@RequestParam(name="offset", defaultValue = "0") int offset,
+			@RequestParam(name="limit",defaultValue="-1") int limit) {
+		return ResponseEntity.ok(accountsService.getAccounts());
 	}
 
-	@GET
-	@Path("{id}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@GetMapping(
+	    path="{id}",
+	    produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(
 			value="get account",
-			produces=MediaType.APPLICATION_JSON)
+			produces= MediaType.APPLICATION_JSON_VALUE)
 	@ApiResponses({
-		@ApiResponse(code=200,message="returns existing account",response=AccountResponse.class),
+		@ApiResponse(code=200,message="returns existing account",response=GetAccountResponse.class),
 		@ApiResponse(code=404,message="account doesn't exists")
 		
 	})
-	public Response getAccount(@PathParam("id") String id) {
+	public ResponseEntity<GetAccountResponse> getAccount(@PathVariable String id) {
 		return accountsService
 		.getAccount(id)
-		.map(AccountResponse::valueOf)
-		.map(Response::ok)
-		.orElseGet(() -> Response.status(Status.NOT_FOUND))
-		.build();
+		.map(GetAccountResponse::valueOf)
+		.map(ResponseEntity::ok)
+		.orElseGet(() -> ResponseEntity.notFound().build());
 	}
-
-	@PUT
-	@Path("{id}")
-	@ApiOperation(value="update account",code=200)
-	public Response updateAccount(
-			@PathParam("id") Integer id,
-			UpdateAccountRequest updateAccount) {
-		return Response.ok().build();
-	}
-	
-	@DELETE
-	@Path("{id}")
-	@ApiOperation(value="remove account",code=200)
-	public Response removeAccount(@PathParam("id") Integer id) {
-		return Response.ok().build();
-	}
-	
-	@PUT
-	@Path("{id}/inactive")
-	@ApiOperation("change account status, you can activate or deactivate it")
-	public Response inactivateAccount(
-			@PathParam("id") Integer id,
-			InactivateAccountRequest inactivateAccount) {
-		return Response.ok().build();
-	}
-	
-	// example of sub-resource locator
-	@Path("{accountid}/shortcuts")
-	public Shortcuts shortcuts(@PathParam("accountid") String accountid) {
-		Account account = accountsService.getAccount(accountid).orElseGet(() -> {throw new AccountDoesntExistException();});
-		return new Shortcuts(account,urlShortcuts, shortcutStatsService);
-	}
+//
+//	@PUT
+//	@Path("{id}")
+//	@ApiOperation(value="update account",code=200)
+//	public Response updateAccount(
+//			@PathParam("id") Integer id,
+//			UpdateAccountRequest updateAccount) {
+//		return Response.ok().build();
+//	}
+//	
+//	@DELETE
+//	@Path("{id}")
+//	@ApiOperation(value="remove account",code=200)
+//	public Response removeAccount(@PathParam("id") Integer id) {
+//		return Response.ok().build();
+//	}
+//	
+//	@PUT
+//	@Path("{id}/inactive")
+//	@ApiOperation("change account status, you can activate or deactivate it")
+//	public Response inactivateAccount(
+//			@PathParam("id") Integer id,
+//			InactivateAccountRequest inactivateAccount) {
+//		return Response.ok().build();
+//	}
+//	
+//	// example of sub-resource locator
+////	@Path("{accountid}/shortcuts")
+////	public Shortcuts shortcuts(@PathParam("accountid") String accountid) {
+////		Account account = accountsService.getAccount(accountid).orElseGet(() -> {throw new AccountDoesntExistException();});
+////		return new Shortcuts(account,urlShortcuts, shortcutStatsService);
+////	}
 	
 }

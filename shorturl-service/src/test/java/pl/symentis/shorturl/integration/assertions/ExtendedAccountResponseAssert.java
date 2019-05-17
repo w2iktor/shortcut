@@ -1,15 +1,16 @@
 package pl.symentis.shorturl.integration.assertions;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import pl.symentis.shorturl.api.AbstractAccountResponseAssert;
-import pl.symentis.shorturl.api.AccountResponse;
 
-public class ExtendedAccountResponseAssert extends AbstractAccountResponseAssert<ExtendedAccountResponseAssert, AccountResponse>{
-    protected ExtendedAccountResponseAssert(AccountResponse actual) {
+import pl.symentis.shorturl.api.AbstractGetAccountResponseAssert;
+import pl.symentis.shorturl.api.GetAccountResponse;
+
+public class ExtendedAccountResponseAssert extends AbstractGetAccountResponseAssert<ExtendedAccountResponseAssert, GetAccountResponse>{
+    protected ExtendedAccountResponseAssert(GetAccountResponse actual) {
         super(actual, ExtendedAccountResponseAssert.class);
     }
 
-    public static ExtendedAccountResponseAssert assertThat(AccountResponse actual) {
+    public static ExtendedAccountResponseAssert assertThat(GetAccountResponse actual) {
         return new ExtendedAccountResponseAssert(actual);
     }
 

@@ -1,4 +1,4 @@
-FROM openjdk:8u141-jdk
+FROM openjdk:8-jdk-slim
 VOLUME /tmp
 VOLUME /log
 EXPOSE 8080

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import pl.symentis.shorturl.domain.Account;
 
-public class AccountResponse {
+public class GetAccountResponse {
 	
 	private final String name;
 	private final String email;
@@ -14,7 +14,7 @@ public class AccountResponse {
 	private final long currentShortcuts;
 	
 	@JsonCreator
-	public AccountResponse(
+	public GetAccountResponse(
 			@JsonProperty("name") String name, 
 			@JsonProperty("email") String email, 
 			@JsonProperty("taxnumber") String taxnumber,	
@@ -45,8 +45,8 @@ public class AccountResponse {
 	public long getCurrentShortcuts() {
 		return currentShortcuts;
 	}
-	public static AccountResponse valueOf(Account account) {
-		return new AccountResponse(
+	public static GetAccountResponse valueOf(Account account) {
+		return new GetAccountResponse(
 				account.getName(),
 				account.getEmail(),
 				account.getTaxnumber(),

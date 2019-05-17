@@ -35,7 +35,7 @@ public class AccountsService {
 	}
 
 	public Optional<Account> getAccount(String id) {
-		return Optional.ofNullable(accountRepository.findOne(id));
+		return accountRepository.findById(id);
 	}
 
 	public ImmutableList<Account> getAccounts() {
