@@ -1,5 +1,6 @@
 package pl.symentis.shorturl.domain;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -15,20 +16,19 @@ public class Account {
 	private String email;
 	private String taxnumber;
 	private long maxShortcuts;
-	private long currentShortcuts;
 	private List<Shortcut> shortcuts;
 	
 	public Account() {
 		
 	}
 	
-	public Account(String name, String email, String taxnumber, long maxShortcuts, List<Shortcut> shortcuts) {
+	Account(String name, String email, String taxnumber, long maxShortcuts) {
 		super();
 		this.name = name;
 		this.email = email;
 		this.taxnumber = taxnumber;
 		this.maxShortcuts = maxShortcuts;
-		this.shortcuts = shortcuts;
+		this.shortcuts = Collections.emptyList();
 	}
 
 	public String getEmail() {
@@ -60,15 +60,24 @@ public class Account {
 	}
 
 	public long getCurrentShortcuts() {
-		return currentShortcuts;
+		return shortcuts.size();
 	}
 
 	public List<Shortcut> getShortcuts() {
 		return shortcuts;
 	}
 
+
 	public void setShortcuts(List<Shortcut> shortcuts) {
 		this.shortcuts = shortcuts;
 	}
-	
+
+	public void addShortcuts(List<Shortcut> shortcuts) {
+		this.shortcuts.addAll(shortcuts);
+	}
+
+	public void addShortcut(Shortcut shortcut) {
+		this.shortcuts.add(shortcut);
+	}
+
 }

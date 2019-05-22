@@ -3,6 +3,7 @@ package pl.symentis.shorturl.service;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.toList;
+import static pl.symentis.shorturl.domain.ShortcutBuilder.shortcutBuilder;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -22,11 +23,7 @@ import pl.symentis.shorturl.api.ExpiryPolicyData;
 import pl.symentis.shorturl.api.RedirectsExpiryPolicyData;
 import pl.symentis.shorturl.dao.AccountRepository;
 import pl.symentis.shorturl.dao.ShortcutRepository;
-import pl.symentis.shorturl.domain.Account;
-import pl.symentis.shorturl.domain.DateTimeExpiryPolicy;
-import pl.symentis.shorturl.domain.ExpiryPolicy;
-import pl.symentis.shorturl.domain.RedirectsExpiryPolicy;
-import pl.symentis.shorturl.domain.Shortcut;
+import pl.symentis.shorturl.domain.*;
 
 @Component
 public class ShortcutsRegistry {
@@ -59,7 +56,11 @@ public class ShortcutsRegistry {
 			policy = new DateTimeExpiryPolicy(((DateTimeExpiryPolicyData)policyData).getValidUntil());
 		}
 		
-		Shortcut value = new Shortcut(shortcutCode,shortcutReqs.getUrl(), policy, 0);
+		Shortcut value = shortcutBuilder()
+			.withShortcut(shortcutCode)
+			.withUrl(shortcutReqs.getUrl())
+			.withExpiryPolicy(policy)
+			.build();
 		shortcutRepository.addShortcut(accountName, shortcutCode, value);
 
 		return value;
@@ -82,7 +83,11 @@ public class ShortcutsRegistry {
 		}
 
 		
-		Shortcut value = new Shortcut(shortcutCode,shortcutReqs.getUrl(), policy, 0);
+		Shortcut value = shortcutBuilder()
+			.withShortcut(shortcutCode)
+			.withUrl(shortcutReqs.getUrl())
+			.withExpiryPolicy(policy)
+			.build();
 		shortcutRepository.addShortcut(accountName, shortcutCode, value);
 
 		return shortcutCode;

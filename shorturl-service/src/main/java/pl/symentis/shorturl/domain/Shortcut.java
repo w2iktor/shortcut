@@ -12,43 +12,31 @@ public class Shortcut {
 	@Field("counter")
 	private long decodeCounter;
 
-	public Shortcut(String shortcut, URL url, ExpiryPolicy expiryPolicy, long decodeCounter) {
+	Shortcut(String shortcut, URL url, ExpiryPolicy expiryPolicy) {
 		this.shortcut = shortcut;
 		this.url = url;
 		this.expiryPolicy = expiryPolicy;
-		this.decodeCounter = decodeCounter;
+		this.decodeCounter = 0L;
 	}
 
 	public String getShortcut() {
 		return shortcut;
 	}
 
-	public void setShortcut(String shortcut) {
-		this.shortcut = shortcut;
-	}
-
 	public URL getUrl() {
 		return url;
-	}
-
-	public void setUrl(URL url) {
-		this.url = url;
 	}
 
 	public ExpiryPolicy getExpiryPolicy() {
 		return expiryPolicy;
 	}
 
-	public void setExpiryPolicy(ExpiryPolicy expiryPolicy) {
-		this.expiryPolicy = expiryPolicy;
-	}
-
 	public long getDecodeCounter() {
 		return decodeCounter;
 	}
 
-	public void setDecodeCounter(long decodeCounter) {
-		this.decodeCounter = decodeCounter;
+	public void incrementDecodeCounter() {
+		this.decodeCounter++;
 	}
 	
 	

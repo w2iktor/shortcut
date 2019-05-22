@@ -23,7 +23,10 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.Account;
+import pl.symentis.shorturl.domain.AccountBuilder;
 import pl.symentis.shorturl.service.AccountsService;
+
+import static pl.symentis.shorturl.domain.AccountBuilder.accountBuilder;
 
 @RestController
 @RequestMapping(path = "/api/accounts")
@@ -45,12 +48,22 @@ public class Accounts {
 	@ApiOperation(value = "create account")
 	public ResponseEntity<Void> createAccount(
 			@ApiParam @RequestBody CreateAccountRequest createAccount) {
-	  
+		Account account = accountBuilder()
+			.withName(createAccount.getName())
+			.withEmail(createAccount.getEmail())
+			.withTaxnumber(createAccount.getTaxnumber())
+			.withMaxShortcuts(createAccount.getMaxShortcuts())
+			.build();
+
 		return accountsService
-		.createAccount(createAccount)
-		.map(account -> ResponseEntity.created(ControllerLinkBuilder.linkTo(Accounts.class).slash(account.getName()).toUri()))
-		.orElseGet(() -> ResponseEntity.status(HttpStatus.CONFLICT))
-		.build();
+			.createAccount(account)
+			.map(createdAccount -> ResponseEntity.created(
+				ControllerLinkBuilder
+					.linkTo(Accounts.class)
+					.slash(createdAccount.getName())
+					.toUri()))
+			.orElseGet(() -> ResponseEntity.status(HttpStatus.CONFLICT))
+			.build();
 	}
 	
 	@GetMapping(
@@ -75,10 +88,10 @@ public class Accounts {
 	})
 	public ResponseEntity<GetAccountResponse> getAccount(@PathVariable String id) {
 		return accountsService
-		.getAccount(id)
-		.map(GetAccountResponse::valueOf)
-		.map(ResponseEntity::ok)
-		.orElseGet(() -> ResponseEntity.notFound().build());
+			.getAccount(id)
+			.map(GetAccountResponse::valueOf)
+			.map(ResponseEntity::ok)
+			.orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
 	@PutMapping(
@@ -89,6 +102,7 @@ public class Accounts {
 	public ResponseEntity<Void> updateAccount(
 			@PathVariable("accountid") Integer id,
 			@RequestBody UpdateAccountRequest updateAccount) {
+
 		return ResponseEntity.ok().build();
 	}
 	
@@ -96,8 +110,12 @@ public class Accounts {
 	    path = "{accountid}"
 	)
 	@ApiOperation(value="remove account",code=200)
-	public ResponseEntity<Void> removeAccount(@PathVariable("accountid") Integer id) {
-		return ResponseEntity.ok().build();
+	public ResponseEntity<Void> removeAccount(@PathVariable("accountid") String id) {
+		if (accountsService.removeAccount(id)) {
+			return ResponseEntity.noContent().build();
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 	
 	@PutMapping(
