@@ -16,16 +16,23 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
+import com.mongodb.MongoClient;
 
 import pl.symentis.shorturl.api.GetAccountResponse;
 import pl.symentis.shorturl.api.CreateAccountRequest;
@@ -34,6 +41,7 @@ import pl.symentis.shorturl.api.RedirectsExpiryPolicyData;
 import pl.symentis.shorturl.integration.assertions.ExtendedAccountResponseAssert;
 
 @ExtendWith(SpringExtension.class)
+@Testcontainers
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ShorturlApplicationIT {
 
@@ -44,6 +52,22 @@ public class ShorturlApplicationIT {
 
   @Autowired
   ObjectMapper objectMapper;
+
+  @Container
+  public static GenericContainer<?> mongo = new GenericContainer<>("mongo:3.4-xenial")
+    .withExposedPorts(27017)
+    .waitingFor(Wait.forListeningPort());
+
+  @TestConfiguration
+  public static class MongoOverrides {
+    
+    @Bean
+    public MongoClient mongoClient() {
+      Integer mongoPort = mongo.getMappedPort(27017);
+      return new MongoClient("localhost", mongoPort);
+    }
+    
+  }
 
   @BeforeEach
   public void setUp() {
