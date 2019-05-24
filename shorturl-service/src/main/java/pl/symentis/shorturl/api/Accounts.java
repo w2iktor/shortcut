@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.domain.Account;
-import pl.symentis.shorturl.domain.AccountBuilder;
 import pl.symentis.shorturl.service.AccountsService;
 
 import static pl.symentis.shorturl.domain.AccountBuilder.accountBuilder;
@@ -55,8 +54,8 @@ public class Accounts {
 			.withMaxShortcuts(createAccount.getMaxShortcuts())
 			.build();
 
-		return accountsService
-			.createAccount(account)
+		return java.util.Optional.of(accountsService
+			.createAccount(account))
 			.map(createdAccount -> ResponseEntity.created(
 				ControllerLinkBuilder
 					.linkTo(Accounts.class)
