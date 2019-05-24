@@ -22,7 +22,7 @@ public class Account {
 		
 	}
 	
-	Account(String name, String email, String taxnumber, long maxShortcuts) {
+	public Account(String name, String email, String taxnumber, long maxShortcuts) {
 		super();
 		this.name = name;
 		this.email = email;
@@ -34,8 +34,8 @@ public class Account {
 	public String getEmail() {
 		return email;
 	}
-
 	public void setEmail(String email) {
+
 		this.email = email;
 	}
 

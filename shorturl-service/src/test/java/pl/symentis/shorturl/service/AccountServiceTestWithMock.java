@@ -34,8 +34,7 @@ public class AccountServiceTestWithMock {
         "name",
         "mail",
         "taxnumber",
-        1, 
-        emptyList());
+        1);
     when(repo.insert(expected)).thenReturn(expected);
     // when
     Account actual = sut.createAccount(expected);
@@ -53,14 +52,12 @@ public class AccountServiceTestWithMock {
         "name1",
         "mail",
         "taxnumber",
-        1, 
-        emptyList());
+        1);
     Account expected1 = new Account(
         "name1",
         "innemail",
         "innytaxnumber",
-        1, 
-        emptyList());
+        1);
     when(repo.insert(expected0)).thenReturn(expected0);
     when(repo.insert(expected1)).thenThrow(new DuplicateAccountException("a chuj", new Throwable()));
     // when
