@@ -21,6 +21,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import com.mongodb.MongoClient;
 
 import pl.symentis.shorturl.domain.Account;
+import pl.symentis.shorturl.domain.AccountBuilder;
+
+import javax.validation.ValidationException;
 
 @Testcontainers
 @ExtendWith(SpringExtension.class)
@@ -85,5 +88,19 @@ public class AccountServiceTest {
       .isInstanceOf(DuplicateAccountException.class)
       .hasMessage("a chuj");
     
+  }
+
+  @Test
+  void account_name_should_not_be_null(){
+    Account accountWithoutName = AccountBuilder.accountBuilder()
+        .withEmail("aaa@gmail.com")
+        .withMaxShortcuts(1)
+        .withTaxnumber("taxnumber")
+        .withName(null)
+        .build();
+
+    assertThatThrownBy( () -> sut.createAccount(accountWithoutName))
+        .isInstanceOf(ValidationException.class)
+        .hasMessageContaining("Missing field: name");
   }
 }

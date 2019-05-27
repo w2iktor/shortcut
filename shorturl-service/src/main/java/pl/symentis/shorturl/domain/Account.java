@@ -7,11 +7,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
+
 @TypeAlias("account")
 @Document(collection="accounts")
 public class Account {
 
 	@Id
+	@NotNull
 	private String name;
 	private String email;
 	private String taxnumber;

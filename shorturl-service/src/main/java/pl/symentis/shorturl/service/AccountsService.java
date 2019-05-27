@@ -11,11 +11,13 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableList;
 
+import org.springframework.validation.annotation.Validated;
 import pl.symentis.shorturl.dao.AccountRepository;
 import pl.symentis.shorturl.domain.Account;
 import pl.symentis.shorturl.domain.AccountBuilder;
 
 @Component
+@Validated
 public class AccountsService {
 
 	private final AccountRepository accountRepository;
