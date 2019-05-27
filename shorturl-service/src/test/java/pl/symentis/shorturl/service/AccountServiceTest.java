@@ -19,8 +19,11 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.devskiller.jfairy.Fairy;
+import com.devskiller.jfairy.producer.person.Person;
 import com.mongodb.MongoClient;
 
+import pl.symentis.shorturl.dao.AccountRepository;
 import pl.symentis.shorturl.domain.Account;
 import pl.symentis.shorturl.domain.AccountBuilder;
 
@@ -50,15 +53,21 @@ public class AccountServiceTest {
     
   }
   
+  Fairy fairy = Fairy.create();
+  
   @Autowired
   AccountsService sut;  
 
+  @Autowired
+  AccountRepository repo;
+  
   @Test
   void create_account() {
     // given
+    Person person = fairy.person();
     Account expected = new Account(
-        "name",
-        "mail",
+        person.getFirstName(),
+        person.getEmail(),
         "taxnumber",
         1);
 
@@ -67,10 +76,20 @@ public class AccountServiceTest {
 
     // then
     assertThat(actual)
-      .hasName("name")
-      .hasEmail("mail")
+      .hasName(person.getFirstName())
+      .hasEmail(person.getEmail())
       .hasTaxnumber("taxnumber")
       .hasMaxShortcuts(1);
+    
+    // when 
+    Optional<Account> account= sut.getAccount(expected.getName());
+    
+    // then
+    assertThat(actual)
+    .hasName(person.getFirstName())
+    .hasEmail(person.getEmail())
+    .hasTaxnumber("taxnumber")
+    .hasMaxShortcuts(1);
   }
   
   @Test
@@ -125,11 +144,23 @@ public class AccountServiceTest {
   @Test
   void get_account_s(){
     // given
-    sut.createAccount( ...)
+    Person person = fairy.person();
+    Account expected = new Account(
+        person.getFirstName(),
+        person.getEmail(),
+        "taxnumber",
+        1);
+    repo.save( expected );
 
     // when
 
-    sut.getAccount("name");
+    Optional<Account> account = sut.getAccount(expected.getName());
+    
+    assertThat(account.get())
+    .hasName(person.getFirstName())
+    .hasEmail(person.getEmail())
+    .hasTaxnumber("taxnumber")
+    .hasMaxShortcuts(1);
 
   }
 }
