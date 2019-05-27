@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static pl.symentis.shorturl.domain.AccountAssert.assertThat;
 
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import pl.symentis.shorturl.domain.Account;
 import pl.symentis.shorturl.domain.AccountBuilder;
 
 import javax.validation.ValidationException;
+import java.util.Optional;
 
 @Testcontainers
 @ExtendWith(SpringExtension.class)
@@ -59,8 +61,11 @@ public class AccountServiceTest {
         "mail",
         "taxnumber",
         1);
+
     // when
     Account actual = sut.createAccount(expected);
+
+    // then
     assertThat(actual)
       .hasName("name")
       .hasEmail("mail")
@@ -81,7 +86,8 @@ public class AccountServiceTest {
         "innemail",
         "innytaxnumber",
         1);
-    // when
+
+    // when & then
     sut.createAccount(expected0);
 
     assertThatThrownBy(() -> sut.createAccount(expected1))
@@ -92,6 +98,7 @@ public class AccountServiceTest {
 
   @Test
   void account_name_should_not_be_null_nor_empty(){
+    // given
     Account accountWithoutName = AccountBuilder.accountBuilder()
         .withEmail("aaa@gmail.com")
         .withMaxShortcuts(1)
@@ -99,8 +106,30 @@ public class AccountServiceTest {
         .withName(null)
         .build();
 
+    // when & then
     assertThatThrownBy( () -> sut.createAccount(accountWithoutName))
         .isInstanceOf(ValidationException.class)
         .hasMessageContaining("Name in account cannot be empty");
+  }
+
+  @Test
+  void get_account_for_non_existing_account_name_returns_empty_optional(){
+    // when
+    Optional<Account> result = sut.getAccount("NON_EXISTING_NAME");
+
+    // then
+    Assertions.assertThat(result)
+            .isEmpty();
+  }
+
+  @Test
+  void get_account_s(){
+    // given
+    sut.createAccount( ...)
+
+    // when
+
+    sut.getAccount("name");
+
   }
 }
