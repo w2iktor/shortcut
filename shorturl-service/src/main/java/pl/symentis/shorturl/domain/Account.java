@@ -1,20 +1,19 @@
 package pl.symentis.shorturl.domain;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import java.util.Collections;
+import java.util.List;
 
 @TypeAlias("account")
 @Document(collection="accounts")
 public class Account {
 
 	@Id
-	@NotNull
+	@NotBlank(message = "Name in account cannot be empty")
 	private String name;
 	private String email;
 	private String taxnumber;

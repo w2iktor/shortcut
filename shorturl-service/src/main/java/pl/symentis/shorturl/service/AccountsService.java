@@ -16,6 +16,8 @@ import pl.symentis.shorturl.dao.AccountRepository;
 import pl.symentis.shorturl.domain.Account;
 import pl.symentis.shorturl.domain.AccountBuilder;
 
+import javax.validation.Valid;
+
 @Component
 @Validated
 public class AccountsService {
@@ -28,7 +30,7 @@ public class AccountsService {
 		this.accountRepository = accountRepository;
 	}
 
-	public Account createAccount(Account account) {
+	public Account createAccount(@Valid Account account) {
 	  try {
       return accountRepository.insert(account);
     } catch (DuplicateKeyException e) {

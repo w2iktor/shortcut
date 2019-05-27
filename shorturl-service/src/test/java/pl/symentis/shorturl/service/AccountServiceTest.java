@@ -91,7 +91,7 @@ public class AccountServiceTest {
   }
 
   @Test
-  void account_name_should_not_be_null(){
+  void account_name_should_not_be_null_nor_empty(){
     Account accountWithoutName = AccountBuilder.accountBuilder()
         .withEmail("aaa@gmail.com")
         .withMaxShortcuts(1)
@@ -101,6 +101,6 @@ public class AccountServiceTest {
 
     assertThatThrownBy( () -> sut.createAccount(accountWithoutName))
         .isInstanceOf(ValidationException.class)
-        .hasMessageContaining("Missing field: name");
+        .hasMessageContaining("Name in account cannot be empty");
   }
 }
