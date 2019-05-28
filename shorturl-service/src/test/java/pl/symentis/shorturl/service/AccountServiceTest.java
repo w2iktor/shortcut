@@ -22,8 +22,8 @@ import javax.validation.ValidationException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static pl.symentis.shorturl.domain.AccountAssert.assertThat;
 import static pl.symentis.shorturl.domain.FakeAccountBuilder.fakeAccountBuilder;
+import static pl.symentis.shorturl.integration.assertions.ExtendedAccountAssert.assertThat;
 
 @Testcontainers
 @ExtendWith(SpringExtension.class)
@@ -74,7 +74,7 @@ public class AccountServiceTest {
         // given
         String duplicateName = "duplicate name";
         Account firstAccount = fakeAccountBuilder()
-                .withName(duplicateName)
+            .withName(duplicateName)
             .build();
         sut.createAccount(firstAccount);
         Account accountWithSameName = fakeAccountBuilder()
@@ -134,10 +134,7 @@ public class AccountServiceTest {
 
         // then
         assertThat(actualAccount.get())
-            .hasName(expectedAccount.getName())
-            .hasEmail(expectedAccount.getEmail())
-            .hasTaxnumber(expectedAccount.getTaxnumber())
-            .hasMaxShortcuts(expectedAccount.getMaxShortcuts());
+            .isSameAs(expectedAccount);
     }
 
     @Test
@@ -158,9 +155,59 @@ public class AccountServiceTest {
 
         // then
         assertThat(actual.get())
-            .hasName(expected.getName())
-            .hasEmail(expected.getEmail())
-            .hasTaxnumber(expected.getTaxnumber())
-            .hasMaxShortcuts(expected.getMaxShortcuts());
+            .isSameAs(expected);
+    }
+
+    @Test
+    void get_account_which_was_removed_returns_empty_optional(){
+        // given
+        Account expected = fakeAccountBuilder()
+            .build();
+        accountRepository.save(expected);
+
+        // when
+        Optional<Account> savedAccount = sut.getAccount(expected.getName());
+
+        // then
+        assertThat(savedAccount.get())
+            .isSameAs(expected);
+
+        // when
+        sut.removeAccount(expected.getName());
+        // and
+        Optional<Account> actual = sut.getAccount(expected.getName());
+
+        // then
+        Assertions.assertThat(actual)
+            .isEmpty();
+    }
+
+    @Test
+    void delete_non_existing_account_returns_false(){
+        // when
+        boolean removalResult = sut.removeAccount("NON_EXISTING_NAME");
+
+        // then
+        Assertions.assertThat(removalResult)
+            .isFalse();
+    }
+
+    @Test
+    void delete_existing_accout_removes_it_from_system(){
+        // given
+        Account expected = fakeAccountBuilder()
+            .build();
+        accountRepository.save(expected);
+
+        // when
+        boolean removalResult = sut.removeAccount(expected.getName());
+
+        // then
+        Assertions.assertThat(removalResult)
+            .isTrue();
+        // and
+        Optional<Account> actual = accountRepository.findById(expected.getName());
+        Assertions.assertThat(actual)
+            .isEmpty();
     }
 }

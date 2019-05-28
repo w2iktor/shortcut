@@ -15,7 +15,9 @@ public class FakeAccountBuilder {
             .withEmail(company.getEmail())
             .withName(company.getName())
             .withTaxnumber(company.getVatIdentificationNumber())
-            .withMaxShortcuts(new Random().nextInt(100) + 1 );   //hence min value for 'maxShortcuts' is 1 and minimum value of 'nextInt' is 0, we have to add '1' to result
+            .withMaxShortcuts(new Random().nextInt(100) + 1 );   // hence min value for 'maxShortcuts' is 1
+                                                                        // and minimum value of 'nextInt' is 0,
+                                                                        // we have to add '1' to result
     }
 
     public static FakeAccountBuilder fakeAccountBuilder() {
