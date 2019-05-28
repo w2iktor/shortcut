@@ -5,6 +5,7 @@ public final class AccountBuilder {
     private String email;
     private String taxnumber;
     private long maxShortcuts;
+    private ExpiryPolicy defaultExpiryPolicy;
 
     private AccountBuilder() {
     }
@@ -33,7 +34,12 @@ public final class AccountBuilder {
         return this;
     }
 
+    public AccountBuilder withDefaultExpiryPolicy(ExpiryPolicy expiryPolicy) {
+        this.defaultExpiryPolicy = expiryPolicy;
+        return this;
+    }
+
     public Account build() {
-        return new Account(name, email, taxnumber, maxShortcuts);
+        return new Account(name, email, taxnumber, maxShortcuts, defaultExpiryPolicy);
     }
 }

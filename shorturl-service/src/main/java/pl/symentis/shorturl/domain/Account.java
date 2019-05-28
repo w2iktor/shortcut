@@ -21,25 +21,31 @@ public class Account {
 	@Min(value = 1, message = "Max shortcuts have to be a positive number")
 	private long maxShortcuts;
 	private List<Shortcut> shortcuts;
+	private ExpiryPolicy defaultExpiryPolicy;
 	
 	public Account() {
 		
 	}
 	
-	public Account(String name, String email, String taxnumber, long maxShortcuts) {
+	public Account(String name, String email, String taxnumber, long maxShortcuts, ExpiryPolicy defaultExpiryPolicy) {
 		super();
 		this.name = name;
 		this.email = email;
 		this.taxnumber = taxnumber;
 		this.maxShortcuts = maxShortcuts;
+		this.defaultExpiryPolicy = defaultExpiryPolicy;
 		this.shortcuts = Collections.emptyList();
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public String getEmail() {
 		return email;
 	}
-	public void setEmail(String email) {
 
+	public void setEmail(String email) {
 		this.email = email;
 	}
 
@@ -51,16 +57,20 @@ public class Account {
 		this.taxnumber = taxnumber;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public ExpiryPolicy getDefaultExpiryPolicy() {
+		return defaultExpiryPolicy;
 	}
 
-	public String getName() {
-		return name;
+	public void setDefaultExpiryPolicy(ExpiryPolicy defaultExpiryPolicy) {
+		this.defaultExpiryPolicy = defaultExpiryPolicy;
 	}
 
 	public long getMaxShortcuts() {
 		return maxShortcuts;
+	}
+
+	public void setMaxShortcuts(long maxShortcuts) {
+		this.maxShortcuts = maxShortcuts;
 	}
 
 	public long getCurrentShortcuts() {
@@ -70,7 +80,6 @@ public class Account {
 	public List<Shortcut> getShortcuts() {
 		return shortcuts;
 	}
-
 
 	public void setShortcuts(List<Shortcut> shortcuts) {
 		this.shortcuts = shortcuts;

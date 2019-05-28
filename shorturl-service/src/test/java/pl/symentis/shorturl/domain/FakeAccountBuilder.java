@@ -5,6 +5,8 @@ import com.devskiller.jfairy.producer.company.Company;
 
 import java.util.Random;
 
+import static pl.symentis.shorturl.domain.FakeExpiryPolicyBuilder.fakeExpiryPolicyBuilder;
+
 public class FakeAccountBuilder {
     Fairy fairy = Fairy.create();
     AccountBuilder accountBuilder;
@@ -15,6 +17,9 @@ public class FakeAccountBuilder {
             .withEmail(company.getEmail())
             .withName(company.getName())
             .withTaxnumber(company.getVatIdentificationNumber())
+            .withDefaultExpiryPolicy(fakeExpiryPolicyBuilder()
+                .withRedirectPolicy()
+                .build())
             .withMaxShortcuts(new Random().nextInt(100) + 1 );   // hence min value for 'maxShortcuts' is 1
                                                                         // and minimum value of 'nextInt' is 0,
                                                                         // we have to add '1' to result
@@ -41,6 +46,11 @@ public class FakeAccountBuilder {
 
     public FakeAccountBuilder withMaxShortcuts(long maxShortcuts) {
         accountBuilder.withMaxShortcuts(maxShortcuts);
+        return this;
+    }
+
+    public FakeAccountBuilder withDefaultExpiryPolicy(ExpiryPolicy expiryPolicy) {
+        accountBuilder.withDefaultExpiryPolicy(expiryPolicy);
         return this;
     }
 
