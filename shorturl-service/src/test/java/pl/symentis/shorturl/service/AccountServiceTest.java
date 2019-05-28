@@ -1,9 +1,6 @@
 package pl.symentis.shorturl.service;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static pl.symentis.shorturl.domain.AccountAssert.assertThat;
-
-
+import com.mongodb.MongoClient;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,17 +15,15 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import com.devskiller.jfairy.Fairy;
-import com.devskiller.jfairy.producer.person.Person;
-import com.mongodb.MongoClient;
-
 import pl.symentis.shorturl.dao.AccountRepository;
 import pl.symentis.shorturl.domain.Account;
-import pl.symentis.shorturl.domain.AccountBuilder;
 
 import javax.validation.ValidationException;
 import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static pl.symentis.shorturl.domain.AccountAssert.assertThat;
+import static pl.symentis.shorturl.domain.FakeAccountBuilder.fakeAccountBuilder;
 
 @Testcontainers
 @ExtendWith(SpringExtension.class)
@@ -36,131 +31,136 @@ import java.util.Optional;
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
 @ActiveProfiles("integration")
 public class AccountServiceTest {
-  
-  @Container
-  public static GenericContainer<?> mongo = new GenericContainer<>("mongo:3.4-xenial")
-    .withExposedPorts(27017)
-    .waitingFor(Wait.forListeningPort());
 
-  @TestConfiguration
-  public static class MongoOverrides {
-    
-    @Bean
-    public MongoClient mongoClient() {
-      Integer mongoPort = mongo.getMappedPort(27017);
-      return new MongoClient("localhost", mongoPort);
+    @Container
+    public static GenericContainer<?> mongo = new GenericContainer<>("mongo:3.4-xenial")
+        .withExposedPorts(27017)
+        .waitingFor(Wait.forListeningPort());
+
+    @TestConfiguration
+    public static class MongoOverrides {
+        @Bean
+        public MongoClient mongoClient() {
+            Integer mongoPort = mongo.getMappedPort(27017);
+            return new MongoClient("localhost", mongoPort);
+        }
     }
-    
-  }
-  
-  Fairy fairy = Fairy.create();
-  
-  @Autowired
-  AccountsService sut;  
 
-  @Autowired
-  AccountRepository repo;
-  
-  @Test
-  void create_account() {
-    // given
-    Person person = fairy.person();
-    Account expected = new Account(
-        person.getFirstName(),
-        person.getEmail(),
-        "taxnumber",
-        1);
+    @Autowired
+    AccountsService sut;
 
-    // when
-    Account actual = sut.createAccount(expected);
+    @Autowired
+    AccountRepository accountRepository;
 
-    // then
-    assertThat(actual)
-      .hasName(person.getFirstName())
-      .hasEmail(person.getEmail())
-      .hasTaxnumber("taxnumber")
-      .hasMaxShortcuts(1);
-    
-    // when 
-    Optional<Account> account= sut.getAccount(expected.getName());
-    
-    // then
-    assertThat(actual)
-    .hasName(person.getFirstName())
-    .hasEmail(person.getEmail())
-    .hasTaxnumber("taxnumber")
-    .hasMaxShortcuts(1);
-  }
-  
-  @Test
-  void dont_create_account() {
-    // given
-    Account expected0 = new Account(
-        "name1",
-        "mail",
-        "taxnumber",
-        1);
-    Account expected1 = new Account(
-        "name1",
-        "innemail",
-        "innytaxnumber",
-        1);
+    @Test
+    void create_account_returns_object_with_filled_all_properties() {
+        // given
+        Account expected = fakeAccountBuilder()
+            .build();
 
-    // when & then
-    sut.createAccount(expected0);
+        // when
+        Account actual = sut.createAccount(expected);
 
-    assertThatThrownBy(() -> sut.createAccount(expected1))
-      .isInstanceOf(DuplicateAccountException.class)
-      .hasMessage("a chuj");
-    
-  }
+        // then
+        assertThat(actual)
+            .hasName(expected.getName())
+            .hasEmail(expected.getEmail())
+            .hasTaxnumber(expected.getTaxnumber())
+            .hasMaxShortcuts(expected.getMaxShortcuts());
+    }
 
-  @Test
-  void account_name_should_not_be_null_nor_empty(){
-    // given
-    Account accountWithoutName = AccountBuilder.accountBuilder()
-        .withEmail("aaa@gmail.com")
-        .withMaxShortcuts(1)
-        .withTaxnumber("taxnumber")
-        .withName(null)
-        .build();
+    @Test
+    void cannot_create_duplicated_account() {
+        // given
+        String duplicateName = "duplicate name";
+        Account firstAccount = fakeAccountBuilder()
+                .withName(duplicateName)
+            .build();
+        sut.createAccount(firstAccount);
+        Account accountWithSameName = fakeAccountBuilder()
+            .withName(duplicateName)
+            .build();
 
-    // when & then
-    assertThatThrownBy( () -> sut.createAccount(accountWithoutName))
-        .isInstanceOf(ValidationException.class)
-        .hasMessageContaining("Name in account cannot be empty");
-  }
+        // when & then
+        assertThatThrownBy(() -> sut.createAccount(accountWithSameName))
+            .isInstanceOf(DuplicateAccountException.class)
+            .hasMessage("Account with name: 'duplicate name' already exists");
+    }
+    @Test
+    void cannot_create_account_with_non_positive_value_of_max_shortcuts() {
+        // given
+        Account account = fakeAccountBuilder()
+            .withMaxShortcuts(0)
+            .build();
 
-  @Test
-  void get_account_for_non_existing_account_name_returns_empty_optional(){
-    // when
-    Optional<Account> result = sut.getAccount("NON_EXISTING_NAME");
+        // when & then
+        assertThatThrownBy(() -> sut.createAccount(account))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Max shortcuts have to be a positive number");
+    }
 
-    // then
-    Assertions.assertThat(result)
+    @Test
+    void account_name_should_not_be_null_nor_empty() {
+        // given
+        Account accountWithoutName = fakeAccountBuilder()
+            .withName(null)
+            .build();
+
+        // when & then
+        assertThatThrownBy(() -> sut.createAccount(accountWithoutName))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Name in account cannot be empty");
+    }
+
+    @Test
+    void get_account_for_non_existing_account_name_returns_empty_optional() {
+        // when
+        Optional<Account> result = sut.getAccount("NON_EXISTING_NAME");
+
+        // then
+        Assertions.assertThat(result)
             .isEmpty();
-  }
+    }
 
-  @Test
-  void get_account_s(){
-    // given
-    Person person = fairy.person();
-    Account expected = new Account(
-        person.getFirstName(),
-        person.getEmail(),
-        "taxnumber",
-        1);
-    repo.save( expected );
+    @Test
+    void get_account_for_existing_account_name_returns_object_with_all_properties_properly_mapped() {
+        // given
+        Account expectedAccount = fakeAccountBuilder()
+            .build();
+        accountRepository.save(expectedAccount);
 
-    // when
+        // when
+        Optional<Account> actualAccount = sut.getAccount(expectedAccount.getName());
 
-    Optional<Account> account = sut.getAccount(expected.getName());
-    
-    assertThat(account.get())
-    .hasName(person.getFirstName())
-    .hasEmail(person.getEmail())
-    .hasTaxnumber("taxnumber")
-    .hasMaxShortcuts(1);
+        // then
+        assertThat(actualAccount.get())
+            .hasName(expectedAccount.getName())
+            .hasEmail(expectedAccount.getEmail())
+            .hasTaxnumber(expectedAccount.getTaxnumber())
+            .hasMaxShortcuts(expectedAccount.getMaxShortcuts());
+    }
 
-  }
+    @Test
+    void get_account_returns_previously_created_entity(){
+        // given
+        Account expected = fakeAccountBuilder()
+            .build();
+
+        // when
+        Account createdAccount = sut.createAccount(expected);
+
+        // then
+        assertThat(createdAccount)
+            .isNotNull();
+
+        // when
+        Optional<Account> actual = sut.getAccount(expected.getName());
+
+        // then
+        assertThat(actual.get())
+            .hasName(expected.getName())
+            .hasEmail(expected.getEmail())
+            .hasTaxnumber(expected.getTaxnumber())
+            .hasMaxShortcuts(expected.getMaxShortcuts());
+    }
 }

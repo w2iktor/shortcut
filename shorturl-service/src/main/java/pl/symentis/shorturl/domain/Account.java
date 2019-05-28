@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,7 @@ public class Account {
 	private String name;
 	private String email;
 	private String taxnumber;
+	@Min(value = 1, message = "Max shortcuts have to be a positive number")
 	private long maxShortcuts;
 	private List<Shortcut> shortcuts;
 	
