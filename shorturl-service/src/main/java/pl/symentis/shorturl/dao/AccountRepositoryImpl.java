@@ -21,10 +21,10 @@ public class AccountRepositoryImpl implements CustomizedAccountRepository {
 	}
 
 	@Override
-	public Account findAccountWithShortcut(String accountName, String shortcut) {
-		return mongoTemplate.findOne(
+	public boolean checkIfShortcutExists(String shortcut) {
+		return mongoTemplate.count(
 				new Query(where("shortcuts").elemMatch(where("shortcut").is(shortcut))), 
-				Account.class);		
+				Account.class) > 0;
 	}
 
 	@Override

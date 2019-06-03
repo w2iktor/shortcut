@@ -10,8 +10,6 @@ import java.net.MalformedURLException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,17 +25,17 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import pl.symentis.shorturl.service.ShortcutStatsService;
-import pl.symentis.shorturl.service.ShortcutsRegistry;
+import pl.symentis.shorturl.service.ShortcutsService;
 
 @RestController
 @RequestMapping(path="/api/accounts/{accountid}/shortcuts")
 public class Shortcuts {
 
-	private final ShortcutsRegistry shortcutRegitry;
+	private final ShortcutsService shortcutsService;
   private final ShortcutStatsService shortcutStatsService;
 
-	public Shortcuts(ShortcutsRegistry shortcutRegistry, ShortcutStatsService shortcutStatsService) {
-		this.shortcutRegitry = shortcutRegistry;
+	public Shortcuts(ShortcutsService shortcutsService, ShortcutStatsService shortcutStatsService) {
+		this.shortcutsService = shortcutsService;
 		this.shortcutStatsService = shortcutStatsService;
 	}
 
@@ -55,11 +53,10 @@ public class Shortcuts {
 	)
 	public ResponseEntity<Void> generateURLShortcut(
 			@PathVariable("accountid") String accountid,
-			@RequestBody CreateShortcutRequest shortcutReqs,
-			HttpServletRequest httpRequest) throws MalformedURLException {
+			@RequestBody CreateShortcutRequest shortcutReqs) throws MalformedURLException {
 
 		try {
-			String shortcut = shortcutRegitry.generate(shortcutReqs, httpRequest.getRemoteAddr(),accountid);
+			String shortcut = shortcutsService.generate(accountid, shortcutReqs.getUrl(), shortcutReqs.getExpiry());
 			return ResponseEntity.created(linkTo(methodOn(Redirects.class).get(shortcut, "", "", null)).toUri()).build();
 		} catch (NoSuchAlgorithmException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -86,7 +83,7 @@ public class Shortcuts {
 			@PathVariable("shortcut") String shortcut, 
 			@RequestBody CreateShortcutRequest shortcutReqs) throws MalformedURLException {
 
-		shortcutRegitry.create(shortcutReqs, accountid, shortcut);
+		shortcutsService.create(accountid, shortcutReqs.getUrl(), shortcutReqs.getExpiry(), shortcut);
 		
 		return ResponseEntity
 					.created(

@@ -6,7 +6,6 @@ public final class ShortcutBuilder {
     private String shortcut;
     private URL url;
     private ExpiryPolicy expiryPolicy;
-    private long decodeCounter;
 
     private ShortcutBuilder() {
     }
@@ -27,11 +26,6 @@ public final class ShortcutBuilder {
 
     public ShortcutBuilder withExpiryPolicy(ExpiryPolicy expiryPolicy) {
         this.expiryPolicy = expiryPolicy;
-        return this;
-    }
-
-    public ShortcutBuilder withDecodeCounter(long decodeCounter) {
-        this.decodeCounter = decodeCounter;
         return this;
     }
 

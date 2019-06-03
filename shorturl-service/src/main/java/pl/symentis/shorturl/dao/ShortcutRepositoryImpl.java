@@ -2,8 +2,10 @@ package pl.symentis.shorturl.dao;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
+import java.text.MessageFormat;
 import java.util.Optional;
 
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.symentis.shorturl.domain.Account;
 import pl.symentis.shorturl.domain.Shortcut;
+import pl.symentis.shorturl.service.AccountDoesntExistException;
 
 @Component
 public class ShortcutRepositoryImpl implements CustomizedShortcutRepository {
@@ -26,13 +29,18 @@ public class ShortcutRepositoryImpl implements CustomizedShortcutRepository {
 	}
 
 	@Override
-	public void addShortcut(String accountName, String shortcut, Shortcut value) {
-		mongoTemplate.updateFirst(new Query(where("name").is(accountName)), new Update().push("shortcuts", value),
+	public long addShortcut(String accountName, String shortcut, Shortcut value) {
+		UpdateResult updateResult = mongoTemplate.updateFirst(new Query(where("name").is(accountName)), new Update().push("shortcuts", value),
 				Account.class);
+		long modifiedCount = updateResult.getModifiedCount();
+		if( modifiedCount == 0 ) {
+			throw new AccountDoesntExistException(MessageFormat.format("Account with name: ''{0}'' doesn't exists", accountName));
+		}
+		return modifiedCount;
 	}
 
 	@Override
-	public Optional<Shortcut> getURL(String shortcut) {
+	public Optional<Shortcut> findByShortcut(String shortcut) {
 		
 		BasicQuery query = new BasicQuery(
 				where("shortcuts.shortcut").is(shortcut).getCriteriaObject(), 

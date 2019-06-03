@@ -17,7 +17,6 @@ import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.symentis.shorturl.api.CreateShortcutRequest;
 import pl.symentis.shorturl.api.DateTimeExpiryPolicyData;
 import pl.symentis.shorturl.api.ExpiryPolicyData;
 import pl.symentis.shorturl.api.RedirectsExpiryPolicyData;
@@ -26,39 +25,43 @@ import pl.symentis.shorturl.dao.ShortcutRepository;
 import pl.symentis.shorturl.domain.*;
 
 @Component
-public class ShortcutsRegistry {
+public class ShortcutsService {
 
 	private final AccountRepository accountRepository;
 	private final ShortcutRepository shortcutRepository;
 
 	@Autowired
-	public ShortcutsRegistry(AccountRepository accountRepository, ShortcutRepository shortcutRepository) {
+	public ShortcutsService(AccountRepository accountRepository, ShortcutRepository shortcutRepository) {
 		super();
 		this.accountRepository = accountRepository;
 		this.shortcutRepository = shortcutRepository;
 	}
 
-	public Shortcut create(CreateShortcutRequest shortcutReqs, String accountName, String shortcutCode) {
+	public Shortcut create(String accountName, URL targetUrl, ExpiryPolicyData policyData, String shortcutCode) {
 
-		Account account = accountRepository.findAccountWithShortcut(accountName, shortcutCode);
+		boolean shortcutAlreadyExists = accountRepository.checkIfShortcutExists(shortcutCode);
 
-		if (account != null) {
+		if (shortcutAlreadyExists) {
 			throw new ConflictException(
 					format("There is shortcut registered with path %s for another account", shortcutCode));
 		}
 
-		ExpiryPolicyData policyData = shortcutReqs.getExpiry();
-		
+
+
 		ExpiryPolicy policy = null;
 		if(policyData instanceof RedirectsExpiryPolicyData) {
 			policy = new RedirectsExpiryPolicy(((RedirectsExpiryPolicyData)policyData).getMax());
 		}else if (policyData instanceof DateTimeExpiryPolicyData) {
 			policy = new DateTimeExpiryPolicy(((DateTimeExpiryPolicyData)policyData).getValidUntil());
+		} else {
+			policy = accountRepository.findById(accountName)
+					.map(Account::getDefaultExpiryPolicy)
+					.orElse(null);
 		}
 		
 		Shortcut value = shortcutBuilder()
 			.withShortcut(shortcutCode)
-			.withUrl(shortcutReqs.getUrl())
+			.withUrl(targetUrl)
 			.withExpiryPolicy(policy)
 			.build();
 		shortcutRepository.addShortcut(accountName, shortcutCode, value);
@@ -66,36 +69,22 @@ public class ShortcutsRegistry {
 		return value;
 	}
 
-	public String generate(CreateShortcutRequest shortcutReqs, String remoteIP, String accountName) throws NoSuchAlgorithmException {
+	public String generate(String accountName, URL targetUrl, ExpiryPolicyData policyData) throws NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
-		String s = format("%s;%s;%d", remoteIP, shortcutReqs.getUrl().toExternalForm(), currentTimeMillis());
+		String s = format("%s;%s;%d", policyData, targetUrl.toExternalForm(), currentTimeMillis());
 
 		byte[] hash = digest.digest(s.getBytes(StandardCharsets.UTF_8));
 		String shortcutCode = new Base32().encodeToString(hash);
 
-		ExpiryPolicy policy = null;
-		ExpiryPolicyData policyData = shortcutReqs.getExpiry();
-		if(policyData instanceof RedirectsExpiryPolicyData) {
-			policy = new RedirectsExpiryPolicy(((RedirectsExpiryPolicyData)policyData).getMax());
-		}else if (policyData instanceof DateTimeExpiryPolicyData) {
-			policy = new DateTimeExpiryPolicy(((DateTimeExpiryPolicyData)policyData).getValidUntil());
-		}
 
-		
-		Shortcut value = shortcutBuilder()
-			.withShortcut(shortcutCode)
-			.withUrl(shortcutReqs.getUrl())
-			.withExpiryPolicy(policy)
-			.build();
-		shortcutRepository.addShortcut(accountName, shortcutCode, value);
-
-		return shortcutCode;
+		Shortcut shortcut = create(accountName, targetUrl, policyData, shortcutCode);
+		return shortcut.getShortcut();
 
 	}
 
 	public Optional<Shortcut> decode(String shortcut) {
-		return shortcutRepository.getURL(shortcut);
+		return shortcutRepository.findByShortcut(shortcut);
 	}
 
 	public List<URL> urlsByAccount(String accountName) {

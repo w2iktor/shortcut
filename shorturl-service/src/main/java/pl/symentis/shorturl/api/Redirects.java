@@ -22,19 +22,19 @@ import io.swagger.annotations.ApiOperation;
 import pl.symentis.shorturl.domain.ExpiryPolicy;
 import pl.symentis.shorturl.domain.Shortcut;
 import pl.symentis.shorturl.service.ClicksReporter;
-import pl.symentis.shorturl.service.ShortcutsRegistry;
+import pl.symentis.shorturl.service.ShortcutsService;
 
 @RestController
 @RequestMapping(path = "/redirects")
 @Api
 public class Redirects {
 	
-	private final ShortcutsRegistry urlShortcuts;
+	private final ShortcutsService shortcutsService;
 	private final ClicksReporter clicksReporter;
 	
 	@Autowired
-	public Redirects(ShortcutsRegistry urlShortcuts, ClicksReporter clicksReporter) {
-		this.urlShortcuts = urlShortcuts;
+	public Redirects(ShortcutsService shortcutsService, ClicksReporter clicksReporter) {
+		this.shortcutsService = shortcutsService;
 		this.clicksReporter = clicksReporter;
 	}
 
@@ -49,7 +49,7 @@ public class Redirects {
 			HttpServletRequest httpRequest
 	    ) throws MalformedURLException {
 
-		ResponseEntity<Void> response = urlShortcuts
+		ResponseEntity<Void> response = shortcutsService
 				.decode(shortcut)
 				.flatMap(this::isValidShortcut)
 				.map(Shortcut::getUrl)

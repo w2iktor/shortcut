@@ -70,6 +70,21 @@ public class AccountServiceTest {
     }
 
     @Test
+    void newly_created_accoount_does_not_have_shortcuts(){
+        // given
+        Account account = fakeAccountBuilder()
+                .build();
+        accountRepository.save(account);
+
+        // when
+        Optional<Account> returnedAccount = sut.getAccount(account.getName());
+
+        // then
+        assertThat(returnedAccount.get())
+                .hasNoShortcuts();
+    }
+
+    @Test
     void cannot_create_duplicated_account() {
         // given
         String duplicateName = "duplicate name";

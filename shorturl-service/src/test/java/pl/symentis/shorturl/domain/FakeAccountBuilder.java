@@ -18,7 +18,7 @@ public class FakeAccountBuilder {
             .withName(company.getName())
             .withTaxnumber(company.getVatIdentificationNumber())
             .withDefaultExpiryPolicy(fakeExpiryPolicyBuilder()
-                .withRedirectPolicy()
+                .withRandomExipiryPolicy()
                 .build())
             .withMaxShortcuts(new Random().nextInt(100) + 1 );   // hence min value for 'maxShortcuts' is 1
                                                                         // and minimum value of 'nextInt' is 0,
