@@ -1,6 +1,7 @@
 package pl.symentis.shorturl.domain;
 
 import java.time.LocalDateTime;
+import java.util.StringJoiner;
 
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
@@ -24,4 +25,10 @@ public class DateTimeExpiryPolicy implements ExpiryPolicy {
 		return getValidUntil().isAfter(LocalDateTime.now());
 	}
 
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", DateTimeExpiryPolicy.class.getSimpleName() + "[", "]")
+				.add("validUntil=" + validUntil)
+				.toString();
+	}
 }

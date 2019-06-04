@@ -29,7 +29,7 @@ public class ShortcutRepositoryImpl implements CustomizedShortcutRepository {
 	}
 
 	@Override
-	public long addShortcut(String accountName, String shortcut, Shortcut value) {
+	public long addShortcut(String accountName, Shortcut value) {
 		UpdateResult updateResult = mongoTemplate.updateFirst(new Query(where("name").is(accountName)), new Update().push("shortcuts", value),
 				Account.class);
 		long modifiedCount = updateResult.getModifiedCount();

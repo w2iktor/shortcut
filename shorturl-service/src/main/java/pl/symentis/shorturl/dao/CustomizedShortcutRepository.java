@@ -6,7 +6,7 @@ import pl.symentis.shorturl.domain.Shortcut;
 
 public interface CustomizedShortcutRepository {
 	
-	long addShortcut(String accountName, String shortcut, Shortcut value);
+	long addShortcut(String accountName, Shortcut value);
 
 	Optional<Shortcut> findByShortcut(String shortcut);
 

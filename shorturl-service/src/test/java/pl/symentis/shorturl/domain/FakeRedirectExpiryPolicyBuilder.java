@@ -6,7 +6,7 @@ public class FakeRedirectExpiryPolicyBuilder {
     private long maxRedirections;
 
     public FakeRedirectExpiryPolicyBuilder withRandomMaxRedirections(){
-        this.maxRedirections = new Random().nextInt(100) + 1; //minimum value for this field is '1'
+        this.maxRedirections = new Random().nextInt(100) + 1; // we add 1 to make sure that policy will not expired at first use
         return this;
     }
 

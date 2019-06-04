@@ -38,7 +38,9 @@ public class Shortcut {
 	public void incrementDecodeCounter() {
 		this.decodeCounter++;
 	}
-	
-	
 
+
+	public boolean isValid() {
+		return expiryPolicy.isValidShortcut(this);
+	}
 }

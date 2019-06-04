@@ -64,7 +64,7 @@ public class ShortcutsService {
 			.withUrl(targetUrl)
 			.withExpiryPolicy(policy)
 			.build();
-		shortcutRepository.addShortcut(accountName, shortcutCode, value);
+		shortcutRepository.addShortcut(accountName, value);
 
 		return value;
 	}
@@ -84,7 +84,9 @@ public class ShortcutsService {
 	}
 
 	public Optional<Shortcut> decode(String shortcut) {
-		return shortcutRepository.findByShortcut(shortcut);
+		return shortcutRepository
+				.findByShortcut(shortcut)
+				.filter(Shortcut::isValid);
 	}
 
 	public List<URL> urlsByAccount(String accountName) {

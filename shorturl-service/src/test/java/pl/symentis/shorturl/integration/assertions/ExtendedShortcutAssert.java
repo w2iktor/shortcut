@@ -1,5 +1,6 @@
 package pl.symentis.shorturl.integration.assertions;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Objects;
 import pl.symentis.shorturl.domain.*;
 
@@ -56,6 +57,15 @@ public class ExtendedShortcutAssert extends AbstractShortcutAssert<ExtendedShort
         } else {
             failWithMessage(GENERAL_ERROR_MESSAGE, actual, DateTimeExpiryPolicy.class.getSimpleName(), actualExpiryPolicy.getClass().getSimpleName());
         }
+        return this;
+    }
+
+    public ExtendedShortcutAssert hasExpired() {
+        isNotNull();
+
+        Assertions.assertThat(actual.isValid())
+                .as("Shortcut should expired")
+                .isFalse();
         return this;
     }
 }

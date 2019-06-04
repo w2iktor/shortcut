@@ -1,12 +1,12 @@
 package pl.symentis.shorturl.domain;
 
-import org.hibernate.validator.constraints.Range;
 import org.springframework.data.annotation.TypeAlias;
+
+import java.util.StringJoiner;
 
 @TypeAlias("redirect")
 public class RedirectsExpiryPolicy implements ExpiryPolicy {
 
-	@Range(min = 1)
 	private final long max;
 
 	public RedirectsExpiryPolicy(long max) {
@@ -22,4 +22,10 @@ public class RedirectsExpiryPolicy implements ExpiryPolicy {
 		return shortcut.getDecodeCounter()<=getMax();
 	}
 
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", RedirectsExpiryPolicy.class.getSimpleName() + "[", "]")
+				.add("max=" + max)
+				.toString();
+	}
 }

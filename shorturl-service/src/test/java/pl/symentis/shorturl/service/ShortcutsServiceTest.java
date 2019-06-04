@@ -2,9 +2,10 @@ package pl.symentis.shorturl.service;
 
 import com.mongodb.MongoClient;
 import org.assertj.core.api.Assertions;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -24,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 import static pl.symentis.shorturl.domain.FakeAccountBuilder.fakeAccountBuilder;
-import static pl.symentis.shorturl.domain.FakeExpiryPolicyBuilder.fakeExpiryPolicyBuilder;
+import static pl.symentis.shorturl.domain.FakeShortcutBuilder.fakeShortcutBuilder;
 import static pl.symentis.shorturl.integration.assertions.ExtendedShortcutAssert.assertThat;
 
 @Testcontainers
@@ -57,7 +58,7 @@ class ShortcutsServiceTest {
     ShortcutRepository shortcutRepository;
 
     @Test
-    void shorcut_without_expiration_policy_get_accounts_default() throws NoSuchAlgorithmException {
+    void shortcut_without_expiration_policy_get_accounts_default() throws NoSuchAlgorithmException {
         // given
         Account account = saveRandomAccount();
         ExpiryPolicyData expirationPolicy = null;
@@ -76,7 +77,47 @@ class ShortcutsServiceTest {
                 .hasExpiryPolicySameAs(account.getDefaultExpiryPolicy());
     }
 
-    @NotNull
+    @Test
+    void decoding_shortcut_increment_its_decode_counter() {
+        // given
+        Account account = saveRandomAccount();
+        Shortcut shortcut = fakeShortcutBuilder()
+                .withExpiryPolicy(FakeExpiryPolicyBuilder.fakeExpiryPolicyBuilder()
+                .withRedirectPolicy()
+                .withMaxRedirections(0)
+                .build())
+                .build();
+        shortcutRepository.addShortcut(account.getName(), shortcut);
+
+
+        // when
+        Optional<Shortcut> decodedShortcut = sut.decode(shortcut.getShortcut());
+
+        // then
+        Assertions.assertThat(decodedShortcut)
+                .isNotEmpty();
+        assertThat(decodedShortcut.get())
+                .hasDecodeCounter(1);
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "pl.symentis.shorturl.service.ParametrizedTests#expired_policies")
+    void decoding_expired_shortcut_returns_empty_response(ExpiryPolicy expiredShortcutPolicy){
+        // given
+        Account account = saveRandomAccount();
+        Shortcut expiredShortcut = fakeShortcutBuilder()
+                .withExpiryPolicy(expiredShortcutPolicy)
+                .build();
+        shortcutRepository.addShortcut(account.getName(), expiredShortcut);
+
+        // when
+        Optional<Shortcut> decodedShortcut = sut.decode(expiredShortcut.getShortcut());
+
+        // then
+        Assertions.assertThat(decodedShortcut)
+                .isEmpty();
+    }
+
     private Account saveRandomAccount() {
         Account account = fakeAccountBuilder()
                 .build();
