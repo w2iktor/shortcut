@@ -1,7 +1,0 @@
----
-# handlers file for mongod
-- name: restart mongod
-  systemd:
-    name: mongodb
-    state: restarted
-    enabled: yes

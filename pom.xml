@@ -140,6 +140,5 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>shorturl-service</module>
-		<!-- module>shorturl-client</module -->
 	</modules>
 </project>
