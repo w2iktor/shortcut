@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.Currency;
+import java.util.Objects;
 
 public class PaymentRequest{
     
@@ -46,5 +47,43 @@ public class PaymentRequest{
     {
         return callbackUrl;
     }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash( amount, callbackUrl, currency, email );
+    }
+
+    @Override
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        if ( obj == null )
+        {
+            return false;
+        }
+        if ( getClass() != obj.getClass() )
+        {
+            return false;
+        }
+        PaymentRequest other = (PaymentRequest) obj;
+        return Objects.equals( amount, other.amount ) && Objects.equals( callbackUrl, other.callbackUrl )
+                && Objects.equals( currency, other.currency ) && Objects.equals( email, other.email );
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append( "PaymentRequest [email=" ).append( email ).append( ", amount=" ).append( amount )
+                .append( ", currency=" ).append( currency ).append( ", callbackUrl=" ).append( callbackUrl )
+                .append( "]" );
+        return builder.toString();
+    }
+    
+    
         
 }
