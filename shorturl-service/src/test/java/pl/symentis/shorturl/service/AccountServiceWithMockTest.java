@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 import static pl.symentis.shorturl.domain.AccountAssert.assertThat;
 import static pl.symentis.shorturl.domain.FakeExpiryPolicyBuilder.fakeExpiryPolicyBuilder;
 
-public class AccountServiceTestWithMock {
+public class AccountServiceWithMockTest {
   
   @Autowired
   AccountsService sut;

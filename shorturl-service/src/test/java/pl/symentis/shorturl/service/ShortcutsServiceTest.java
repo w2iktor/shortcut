@@ -2,6 +2,8 @@ package pl.symentis.shorturl.service;
 
 import com.mongodb.MongoClient;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -77,6 +79,7 @@ class ShortcutsServiceTest {
                 .hasExpiryPolicySameAs(account.getDefaultExpiryPolicy());
     }
 
+    @Disabled
     @Test
     void decoding_shortcut_increment_its_decode_counter() {
         // given
