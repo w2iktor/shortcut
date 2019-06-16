@@ -2,14 +2,13 @@ package pl.symentis.shorturl.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.symentis.shorturl.dao.AccountRepository;
 import pl.symentis.shorturl.domain.Account;
 import pl.symentis.shorturl.domain.ExpiryPolicy;
-import pl.symentis.shorturl.domain.FakeExpiryPolicyBuilder;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.symentis.shorturl.domain.AccountAssert.assertThat;
 import static pl.symentis.shorturl.domain.FakeExpiryPolicyBuilder.fakeExpiryPolicyBuilder;
@@ -23,7 +22,7 @@ public class AccountServiceTestWithMock {
 
   @BeforeEach
   void setUp() {
-    repo = Mockito.mock(AccountRepository.class);
+    repo = mock(AccountRepository.class);
     sut = new AccountsService(repo);
     defaultExpiryPolicy = fakeExpiryPolicyBuilder().withRandomExipiryPolicy().build();
   }

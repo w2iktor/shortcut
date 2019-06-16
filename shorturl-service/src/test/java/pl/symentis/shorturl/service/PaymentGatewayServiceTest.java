@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 
-public class PaymentGatewayTest
+public class PaymentGatewayServiceTest
 {
     // system under tests
-    private PaymentGateway paymentGateway;
-    private PaymentGatewayServiceMock paymentGatewayServiceMock;
+    private PaymentGatewayService paymentGatewayService;
+    private PaymentGatewayMock paymentGateway;
 
     @BeforeEach
     public void setUp() throws Exception
@@ -30,14 +30,14 @@ public class PaymentGatewayTest
         ObjectMapper objectMapper = new ObjectMapper();
         RestTemplate restTemplate = new RestTemplateBuilder()
                 .messageConverters( new MappingJackson2HttpMessageConverter( objectMapper ) ).build();
-        paymentGateway = new PaymentGateway( restTemplate, new URL( "http://localhost:9090/gateway/payments" ) );
-        paymentGatewayServiceMock = PaymentGatewayServiceMock.create( paymentGateway::completeRecharge ).start();
+        paymentGatewayService = new PaymentGatewayService( restTemplate, new PaymentGatewayProperties( new URL( "http://localhost:9090/gateway/payments" )) );
+        paymentGateway = PaymentGatewayMock.create( paymentGatewayService::completeRecharge ).start();
     }
 
     @AfterEach
     public void tearDown() throws InterruptedException
     {
-        paymentGatewayServiceMock.shutdown();
+        paymentGateway.shutdown();
     }
 
     @Test
@@ -51,13 +51,13 @@ public class PaymentGatewayTest
         
         UUID randomUUID = UUID.randomUUID();
         
-        paymentGatewayServiceMock.when( paymentRequest )
+        paymentGateway.when( paymentRequest )
             .then( () -> new PaymentResponse( randomUUID, PaymentStatus.OK ) )
             .callback( () -> new PaymentCallbackRequest( randomUUID, PaymentStatus.SUCCESS ) );
         
-        PaymentResponse paymentResponse = paymentGateway.recharge( paymentRequest );
+        PaymentResponse paymentResponse = paymentGatewayService.recharge( paymentRequest );
         
         await().atMost( 5, TimeUnit.SECONDS )
-                .until( () -> paymentGateway.paymentStatus( paymentResponse.getUuid() ) == PaymentStatus.SUCCESS );
+                .until( () -> paymentGatewayService.paymentStatus( paymentResponse.getUuid() ) == PaymentStatus.SUCCESS );
     }
 }
