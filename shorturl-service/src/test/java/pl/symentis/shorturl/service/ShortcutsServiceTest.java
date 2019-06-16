@@ -2,7 +2,6 @@ package pl.symentis.shorturl.service;
 
 import com.mongodb.MongoClient;
 import org.assertj.core.api.Assertions;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
