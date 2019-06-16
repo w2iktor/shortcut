@@ -1,26 +1,17 @@
 package pl.symentis.shorturl.integration;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
-import static pl.symentis.shorturl.api.CreateAccountRequestBuilder.createAccountRequestBuilder;
-import static pl.symentis.shorturl.api.CreateShortcutRequestBuilder.*;
-import static pl.symentis.shorturl.integration.assertions.ExtendedAccountResponseAssert.assertThat;
-
-import java.net.URI;
-import java.net.URL;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.restassured.RestAssured;
+import com.mongodb.MongoClient;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
@@ -31,18 +22,28 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import pl.symentis.shorturl.api.CreateAccountRequest;
+import pl.symentis.shorturl.api.CreateShortcutRequest;
+import pl.symentis.shorturl.api.GetAccountResponse;
+import pl.symentis.shorturl.api.RedirectsExpiryPolicyData;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.RestAssured;
-import com.mongodb.MongoClient;
+import java.net.URI;
+import java.net.URL;
 
-import pl.symentis.shorturl.api.*;
-import pl.symentis.shorturl.integration.assertions.ExtendedAccountResponseAssert;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
+import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import static pl.symentis.shorturl.api.CreateAccountRequestBuilder.createAccountRequestBuilder;
+import static pl.symentis.shorturl.api.CreateShortcutRequestBuilder.createShortcutRequestBuilder;
+import static pl.symentis.shorturl.integration.assertions.ExtendedAccountResponseAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @Testcontainers
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ShorturlApplicationIT {
+public class ShorturlRestApiIT {
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -73,6 +74,7 @@ public class ShorturlApplicationIT {
         RestAssured.port = port;
     }
 
+    @Disabled
     @Test
     public void swagger_is_accessible() {
         String uriString = fromHttpUrl("http://localhost")
