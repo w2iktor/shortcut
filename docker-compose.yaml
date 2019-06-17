@@ -1,0 +1,10 @@
+# docker-compose.yaml
+version: "3.3"
+services:
+  shorturl-service:
+    build:  shorturl-service
+    ports:   ["8080:8080"]
+    links:
+      - mongodb
+  mongodb:
+    image: "mongo:3.4-xenial"
