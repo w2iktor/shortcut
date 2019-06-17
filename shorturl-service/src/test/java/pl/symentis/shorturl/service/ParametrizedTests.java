@@ -15,7 +15,7 @@ import static pl.symentis.shorturl.domain.FakeShortcutBuilder.fakeShortcutBuilde
 public class ParametrizedTests {
     @ParameterizedTest(name = "[{index}] {0} is an expired policy")
     @MethodSource(value = "expired_policies")
-    void decoding_expired_shortcut_returns_empty_response(ExpiryPolicy expiredShortcutPolicy){
+    void shortcut_with_already_expired_policy_is_expired(ExpiryPolicy expiredShortcutPolicy){
         // when
         Shortcut shortcut = fakeShortcutBuilder()
                 .withExpiryPolicy(expiredShortcutPolicy)

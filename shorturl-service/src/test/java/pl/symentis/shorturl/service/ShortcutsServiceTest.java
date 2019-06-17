@@ -2,7 +2,6 @@ package pl.symentis.shorturl.service;
 
 import com.mongodb.MongoClient;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -32,7 +30,6 @@ import static pl.symentis.shorturl.integration.assertions.ExtendedShortcutAssert
 @Testcontainers
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ActiveProfiles("integration")
 class ShortcutsServiceTest {
 
     @Container
@@ -78,7 +75,6 @@ class ShortcutsServiceTest {
                 .hasExpiryPolicySameAs(account.getDefaultExpiryPolicy());
     }
 
-    @Disabled
     @Test
     void decoding_shortcut_increment_its_decode_counter() {
         // given
@@ -86,11 +82,10 @@ class ShortcutsServiceTest {
         Shortcut shortcut = fakeShortcutBuilder()
                 .withExpiryPolicy(FakeExpiryPolicyBuilder.fakeExpiryPolicyBuilder()
                 .withRedirectPolicy()
-                .withMaxRedirections(0)
+                .withMaxRedirections(1)
                 .build())
                 .build();
         shortcutRepository.addShortcut(account.getName(), shortcut);
-
 
         // when
         Optional<Shortcut> decodedShortcut = sut.decode(shortcut.getShortcut());

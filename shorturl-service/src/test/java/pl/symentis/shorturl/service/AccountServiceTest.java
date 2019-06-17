@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -27,15 +26,13 @@ import static pl.symentis.shorturl.integration.assertions.ExtendedAccountAssert.
 
 @Testcontainers
 @ExtendWith(SpringExtension.class)
-// TODO show how to use profiles to not lunch tomcat and speed up tests, for your own good
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
-@ActiveProfiles("integration")
 public class AccountServiceTest {
 
     @Container
     public static GenericContainer<?> mongo = new GenericContainer<>("mongo:3.4-xenial")
         .withExposedPorts(27017)
-        .waitingFor(Wait.forListeningPort());
+        .waitingFor(Wait.forListeningPort()); // !!!
 
     @TestConfiguration
     public static class MongoOverrides {
@@ -70,7 +67,7 @@ public class AccountServiceTest {
     }
 
     @Test
-    void newly_created_accoount_does_not_have_shortcuts(){
+    void newly_created_account_does_not_have_shortcuts(){
         // given
         Account account = fakeAccountBuilder()
                 .build();

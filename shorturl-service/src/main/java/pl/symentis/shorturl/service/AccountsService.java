@@ -15,36 +15,12 @@ import java.util.Optional;
 
 import static java.text.MessageFormat.format;
 
-@Component
-@Validated
-public class AccountsService {
+public interface AccountsService {
+    Account createAccount(@Valid Account account);
 
-    private final AccountRepository accountRepository;
+    Optional<Account> getAccount(String id);
 
-    @Autowired
-    public AccountsService(AccountRepository accountRepository) {
-        super();
-        this.accountRepository = accountRepository;
-    }
+    ImmutableList<Account> getAccounts();
 
-    public Account createAccount(@Valid Account account) {
-        try {
-            return accountRepository.insert(account);
-        } catch (DuplicateKeyException e) {
-            throw new DuplicateAccountException(format("Account with name: ''{0}'' already exists", account.getName()), e);
-        }
-    }
-
-    public Optional<Account> getAccount(String id) {
-        return accountRepository.findById(id);
-    }
-
-    public ImmutableList<Account> getAccounts() {
-        return ImmutableList.copyOf(accountRepository.findAll());
-    }
-
-    public boolean removeAccount(String id) {
-        DeleteResult deleteResult = accountRepository.delete(id);
-        return deleteResult.getDeletedCount() > 0;
-    }
+    boolean removeAccount(String id);
 }

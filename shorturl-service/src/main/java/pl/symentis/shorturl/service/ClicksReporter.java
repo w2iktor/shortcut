@@ -2,7 +2,6 @@ package pl.symentis.shorturl.service;
 
 import static pl.symentis.shorturl.domain.ClickBuilder.clickBuilder;
 
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
@@ -23,21 +22,17 @@ public class ClicksReporter {
 	}
 	
 	@Async
-	public CompletableFuture<Click> reportClick(
-			String agent, 
-			String ipAddress, 
-			URL referer, 
-			String shortcut){
+	public CompletableFuture<Click> reportClick(DecodeShortcutRequest decodeShortcutRequest){
 		return CompletableFuture.supplyAsync(() -> {
-			UserAgent userAgent = new UserAgent(agent);
+			UserAgent userAgent = new UserAgent(decodeShortcutRequest.getAgent());
 
 			Click click = clickBuilder()
 					.withAgent(userAgent.getBrowser().getName())
 					.withOs(userAgent.getOperatingSystem().getName())
-					.withIpAddress(ipAddress)
+					.withIpAddress(decodeShortcutRequest.getIpAddress())
 					.withLocalDateTime(LocalDateTime.now())
-					.withReferer(referer)
-					.withShortcut(shortcut)
+					.withReferer(decodeShortcutRequest.getReferer())
+					.withShortcut(decodeShortcutRequest.getShortcut())
 					.build();
 			clickRepository.save(click);
 			return click;
