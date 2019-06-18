@@ -9,21 +9,8 @@ import pl.symentis.shorturl.dao.ClickRepository;
 import pl.symentis.shorturl.dao.StatsSummary;
 import pl.symentis.shorturl.domain.ShortcutStats;
 
-@Service
-public class ShortcutStatsService {
+public interface ShortcutStatsService {
 
-    private final ClickRepository clickRepository;
 
-    @Autowired
-    ShortcutStatsService(ClickRepository clickRepository){
-        this.clickRepository = clickRepository;
-    }
-
-    public ShortcutStats getStats(String shortcut){
-        StatsSummary agentDetails = clickRepository.getAgentDetails(shortcut);
-        return shortcutStatsBuilder()
-                .withClicks(clickRepository.countClicks(shortcut))
-                .withAgents(agentDetails.statsCounters)
-                .build();
-    }
+    ShortcutStats getStats(String shortcut);
 }

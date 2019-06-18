@@ -5,7 +5,6 @@ import com.jayway.restassured.RestAssured;
 import com.mongodb.MongoClient;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -32,10 +29,8 @@ import java.net.URL;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 import static pl.symentis.shorturl.api.CreateAccountRequestBuilder.createAccountRequestBuilder;
 import static pl.symentis.shorturl.api.CreateShortcutRequestBuilder.createShortcutRequestBuilder;
 import static pl.symentis.shorturl.integration.assertions.ExtendedAccountResponseAssert.assertThat;
@@ -44,8 +39,6 @@ import static pl.symentis.shorturl.integration.assertions.ExtendedAccountRespons
 @Testcontainers
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ShorturlRestApiIT {
-
-    private RestTemplate restTemplate = new RestTemplate();
 
     @LocalServerPort
     int port;
@@ -74,38 +67,8 @@ public class ShorturlRestApiIT {
         RestAssured.port = port;
     }
 
-    @Disabled
     @Test
-    public void swagger_is_accessible() {
-        String uriString = fromHttpUrl("http://localhost")
-            .port(port)
-            .path("/v2/api-docs")
-            .toUriString();
-        ResponseEntity<String> forEntity = restTemplate.getForEntity(uriString, String.class);
-        assertThat(forEntity.getStatusCode())
-            .as("swagger.json not found")
-            .isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    public void swagger_ui_is_accessible() {
-        // given
-        String swaggerUiUrl = fromHttpUrl("http://localhost")
-            .port(port)
-            .path("/swagger-ui.html")
-            .toUriString();
-
-        // when
-        ResponseEntity<String> forEntity = restTemplate.getForEntity(swaggerUiUrl, String.class);
-
-        // then
-        assertThat(forEntity.getStatusCode())
-            .as("swagger-ui not found")
-            .isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    public void generated_shorturl_is_accessible_and_redirect_to_() throws Exception {
+    public void generated_shorturl_is_accessible_and_redirect_to_given_url() throws Exception {
 
         String accountId = generateRandomString();
         CreateAccountRequest createAccountRequest = createAccountRequestBuilder()
@@ -252,7 +215,7 @@ public class ShorturlRestApiIT {
     }
 
     @Test
-    public void create_new_account() throws Exception {
+    public void create_new_account() {
         String email = "account@account.com";
         String name = "acc123";
 

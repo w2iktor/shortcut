@@ -48,4 +48,13 @@ public class FakeShortcutBuilder {
     public Shortcut build() {
         return shortcutBuilder.build();
     }
+
+    public FakeShortcutBuilder withValidExpiryPolicy() {
+        ExpiryPolicy validExpiryPolicy = fakeExpiryPolicyBuilder()
+                .withRedirectPolicy()
+                .withMaxRedirections(100)
+                .build();
+        this.shortcutBuilder.withExpiryPolicy(validExpiryPolicy);
+        return this;
+    }
 }

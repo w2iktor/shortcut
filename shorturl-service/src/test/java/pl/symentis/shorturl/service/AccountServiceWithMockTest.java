@@ -16,7 +16,6 @@ import static pl.symentis.shorturl.domain.FakeExpiryPolicyBuilder.fakeExpiryPoli
 
 public class AccountServiceWithMockTest {
   
-  @Autowired
   AccountsService sut;
   private AccountRepository repo;
   private ExpiryPolicy defaultExpiryPolicy;
@@ -24,7 +23,7 @@ public class AccountServiceWithMockTest {
   @BeforeEach
   void setUp() {
     repo = Mockito.mock(AccountRepository.class);
-    sut = new AccountsService(repo);
+    sut = new DefaultAccountsService(repo);
     defaultExpiryPolicy = fakeExpiryPolicyBuilder().withRandomExipiryPolicy().build();
   }
   
@@ -60,13 +59,13 @@ public class AccountServiceWithMockTest {
         "innytaxnumber",
         1, defaultExpiryPolicy);
     when(repo.insert(expected0)).thenReturn(expected0);
-    when(repo.insert(expected1)).thenThrow(new DuplicateAccountException("a chuj", new Throwable()));
+    when(repo.insert(expected1)).thenThrow(new DuplicateAccountException("BlaBlaBla", new Throwable()));
     // when
     sut.createAccount(expected0);
 
     assertThatThrownBy(() -> sut.createAccount(expected1))
       .isInstanceOf(DuplicateAccountException.class)
-      .hasMessage("a chuj");
+      .hasMessage("BlaBlaBla");
     
   }
 }
