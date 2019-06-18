@@ -18,7 +18,6 @@ import pl.symentis.junit5.flyway.FlywayMigration;
 @Testcontainers
 public class IntegrationTest {
 
-  
   @Container
   public PostgreSQLContainer<?> db = new PostgreSQLContainer<>();
 

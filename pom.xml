@@ -141,5 +141,6 @@
 	<modules>
 		<module>shorturl-service</module>
 		<module>flyway-testcontainers-junit5-extension</module>
+		<module>byteman-tutorial</module>
 	</modules>
 </project>

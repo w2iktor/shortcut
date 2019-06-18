@@ -1,9 +1,11 @@
 package pl.symentis.shorturl.service;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import java.net.URL;
 
+@Configuration
 @ConfigurationProperties( prefix = "payment-gateway" )
 public class PaymentGatewayProperties
 {

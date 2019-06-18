@@ -1,0 +1,7 @@
+RULE mock singleton call
+CLASS pl.symentis.byteman.tutorial.ConfigurationSingleton
+METHOD getProperty
+AT EXIT
+IF true
+DO return "altar"
+ENDRULE
