@@ -7,11 +7,7 @@ import org.junit.jupiter.api.Test;
 
 @WithByteman
 @BMUnitConfig( 
-    loadDirectory = "src/test/resources/byteman", 
-    dumpGeneratedClassesDirectory = "target",
-//    bmunitVerbose = true, 
-//    debug = true,
-    dumpGeneratedClasses = true )
+    loadDirectory = "src/test/resources/byteman" )
 public class StaticMethodTest
 {
     @Test

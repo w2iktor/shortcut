@@ -8,7 +8,11 @@ public class Main
     }
 
     public void run()
+
     {
-        System.out.println( "Hello " + ConfigurationSingleton.getInstance().getProperty() );
+        System.out.println( "Hello "
+                + ConfigurationSingleton.
+                getInstance().
+                getOrgCode("symentis") );
     }
 }

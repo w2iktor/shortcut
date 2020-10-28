@@ -26,9 +26,13 @@ public class IntegrationTest {
   
   @Test
   void usersTableExists() throws Exception {
-    try (Connection connection = DriverManager.getConnection(db.getJdbcUrl(), db.getUsername(), db.getPassword());
+    try (Connection connection = DriverManager
+            .getConnection(db.getJdbcUrl(),
+                    db.getUsername(),
+                    db.getPassword());
         Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM users");) {
+        ResultSet resultSet = statement
+                .executeQuery("SELECT * FROM users")) {
       assertFalse(resultSet.next());
     }
   }

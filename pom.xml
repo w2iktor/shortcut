@@ -14,13 +14,15 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-		<spring.boot.version>2.1.1.RELEASE</spring.boot.version>
+		<spring.boot.version>2.2.5.RELEASE</spring.boot.version>
 		<assertj-assertions-generator-maven-plugin.version>2.2.0</assertj-assertions-generator-maven-plugin.version>
+		<swagger.version>1.6.0</swagger.version>
+		<springfox-swagger.version>2.8.0</springfox-swagger.version>
+		<testcontainers.version>1.15.0-rc2</testcontainers.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
-
 			<dependency>
 				<!-- Import dependency management from Spring Boot -->
 				<groupId>org.springframework.boot</groupId>
@@ -29,64 +31,118 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger2</artifactId>
+				<version>${springfox-swagger.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger-ui</artifactId>
+				<version>${springfox-swagger.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>io.swagger</groupId>
 				<artifactId>swagger-core</artifactId>
-				<version>1.5.18</version>
+				<version>${swagger.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.swagger</groupId>
 				<artifactId>swagger-annotations</artifactId>
-				<version>1.5.18</version>
+				<version>${swagger.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.swagger</groupId>
 				<artifactId>swagger-jersey2-jaxrs</artifactId>
-				<version>1.5.18</version>
+				<version>${swagger.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.swagger</groupId>
 				<artifactId>swagger-jaxrs</artifactId>
-				<version>1.5.18</version>
+				<version>${swagger.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.swagger</groupId>
 				<artifactId>swagger-models</artifactId>
-				<version>1.5.18</version>
+				<version>${swagger.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.webjars</groupId>
 				<artifactId>swagger-ui</artifactId>
 				<version>2.2.10</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 				<version>3.7</version>
 			</dependency>
-
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
 				<version>23.6-jre</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.reflections</groupId>
 				<artifactId>reflections</artifactId>
 				<version>0.9.11</version>
 			</dependency>
-
 			<dependency>
-				<groupId>com.jayway.restassured</groupId>
+				<groupId>io.rest-assured</groupId>
 				<artifactId>rest-assured</artifactId>
-				<version>2.9.0</version>
+				<version>4.3.1</version>
 				<scope>test</scope>
 			</dependency>
-
+			<dependency>
+				<groupId>io.rest-assured</groupId>
+				<artifactId>rest-assured-common</artifactId>
+				<version>4.1.1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>junit-jupiter</artifactId>
+				<version>${testcontainers.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>testcontainers</artifactId>
+				<version>${testcontainers.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>jdbc</artifactId>
+				<version>${testcontainers.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>${testcontainers.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>9.1-901-1.jdbc4</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sparkjava</groupId>
+				<artifactId>spark-core</artifactId>
+				<version>2.9.3</version>
+<!--				<scope>test</scope>-->
+			</dependency>
+			<dependency>
+				<groupId>org.awaitility</groupId>
+				<artifactId>awaitility</artifactId>
+				<version>4.0.3</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.devskiller</groupId>
+				<artifactId>jfairy</artifactId>
+				<version>0.6.2</version>
+				<scope>test</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

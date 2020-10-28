@@ -1,31 +1,23 @@
 package pl.symentis.shorturl.api;
 
-import static java.util.stream.Collectors.toList;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-import static pl.symentis.shorturl.api.ShortcutStatsResponseBuilder.shortcutStatsResponseBuilder;
-import static pl.symentis.shorturl.api.StatsBuilder.statsBuilder;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import pl.symentis.shorturl.service.ShortcutStatsService;
+import pl.symentis.shorturl.service.ShortcutsService;
 
 import java.net.MalformedURLException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import pl.symentis.shorturl.service.ShortcutStatsService;
-import pl.symentis.shorturl.service.ShortcutsService;
+import static java.util.stream.Collectors.toList;
+import static pl.symentis.shorturl.api.ShortcutStatsResponseBuilder.shortcutStatsResponseBuilder;
+import static pl.symentis.shorturl.api.StatsBuilder.statsBuilder;
 
 @RestController
 @RequestMapping(path="/api/accounts/{accountid}/shortcuts")
@@ -57,7 +49,7 @@ public class Shortcuts {
 
 		try {
 			String shortcut = shortcutsService.generate(accountid, shortcutReqs.getUrl(), shortcutReqs.getExpiry());
-			return ResponseEntity.created(linkTo(methodOn(Redirects.class).get(shortcut, "", "", null)).toUri()).build();
+			return ResponseEntity.created(ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(Redirects.class).get(shortcut, "", "", null)).toUri()).build();
 		} catch (NoSuchAlgorithmException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
@@ -87,7 +79,7 @@ public class Shortcuts {
 		
 		return ResponseEntity
 					.created(
-							linkTo(methodOn(Redirects.class).get(shortcut, "", "", null)).toUri()
+							ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(Redirects.class).get(shortcut, "", "", null)).toUri()
 					).build();
 
 	}
