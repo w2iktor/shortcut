@@ -34,8 +34,8 @@ class ShortcutsServiceTest {
 
     @Container
     public static GenericContainer<?> mongo = new GenericContainer<>("mongo:3.4-xenial")
-            .withExposedPorts(27017)
-            .waitingFor(Wait.forListeningPort());
+        .withExposedPorts(27017)
+        .waitingFor(Wait.forListeningPort());
 
     @TestConfiguration
     public static class MongoOverrides {
@@ -66,13 +66,13 @@ class ShortcutsServiceTest {
 
         // then
         Optional<Shortcut> actualShortcut = shortcutRepository
-                .findByShortcut(generatedShortcut);
+            .findByShortcut(generatedShortcut);
 
         Assertions.assertThat(actualShortcut)
-                .isNotEmpty();
+            .isNotEmpty();
 
         assertThat(actualShortcut.get())
-                .hasExpiryPolicySameAs(account.getDefaultExpiryPolicy());
+            .hasExpiryPolicySameAs(account.getDefaultExpiryPolicy());
     }
 
     @Test
@@ -80,11 +80,11 @@ class ShortcutsServiceTest {
         // given
         Account account = saveRandomAccount();
         Shortcut shortcut = fakeShortcutBuilder()
-                .withExpiryPolicy(FakeExpiryPolicyBuilder.fakeExpiryPolicyBuilder()
+            .withExpiryPolicy(FakeExpiryPolicyBuilder.fakeExpiryPolicyBuilder()
                 .withRedirectPolicy()
                 .withMaxRedirections(1)
                 .build())
-                .build();
+            .build();
         shortcutRepository.addShortcut(account.getName(), shortcut);
 
         // when
@@ -92,19 +92,19 @@ class ShortcutsServiceTest {
 
         // then
         Assertions.assertThat(decodedShortcut)
-                .isNotEmpty();
+            .isNotEmpty();
         assertThat(decodedShortcut.get())
-                .hasDecodeCounter(1);
+            .hasDecodeCounter(1);
     }
 
     @ParameterizedTest
     @MethodSource(value = "pl.symentis.shorturl.service.ParametrizedTests#expired_policies")
-    void decoding_expired_shortcut_returns_empty_response(ExpiryPolicy expiredShortcutPolicy){
+    void decoding_expired_shortcut_returns_empty_response(ExpiryPolicy expiredShortcutPolicy) {
         // given
         Account account = saveRandomAccount();
         Shortcut expiredShortcut = fakeShortcutBuilder()
-                .withExpiryPolicy(expiredShortcutPolicy)
-                .build();
+            .withExpiryPolicy(expiredShortcutPolicy)
+            .build();
         shortcutRepository.addShortcut(account.getName(), expiredShortcut);
 
         // when
@@ -112,12 +112,12 @@ class ShortcutsServiceTest {
 
         // then
         Assertions.assertThat(decodedShortcut)
-                .isEmpty();
+            .isEmpty();
     }
 
     private Account saveRandomAccount() {
         Account account = fakeAccountBuilder()
-                .build();
+            .build();
         accountRepository.save(account);
         return account;
     }

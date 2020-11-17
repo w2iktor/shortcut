@@ -13,12 +13,11 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import pl.symentis.shorturl.api.CreateAccountRequest;
 import pl.symentis.shorturl.api.CreateShortcutRequest;
 import pl.symentis.shorturl.api.GetAccountResponse;
@@ -28,7 +27,6 @@ import java.net.URI;
 import java.net.URL;
 
 import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static pl.symentis.shorturl.api.CreateAccountRequestBuilder.createAccountRequestBuilder;
@@ -47,19 +45,15 @@ public class ShorturlRestApiIT {
     ObjectMapper objectMapper;
 
     @Container
-    public static GenericContainer<?> mongo = new GenericContainer<>("mongo:3.4-xenial")
-            .withExposedPorts(27017)
-            .waitingFor(Wait.forListeningPort());
+    static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"));
 
     @TestConfiguration
     public static class MongoOverrides {
-
         @Bean
         public MongoClient mongoClient() {
-            Integer mongoPort = mongo.getMappedPort(27017);
+            Integer mongoPort = mongoDBContainer.getMappedPort(27017);
             return new MongoClient("localhost", mongoPort);
         }
-
     }
 
     @BeforeEach
@@ -171,7 +165,7 @@ public class ShorturlRestApiIT {
         CreateAccountRequest createAccountRequest = createAccountRequestBuilder()
             .withName(accountId)
             .withTaxnumber("taxnumber")
-            .withMaxShortcuts(1)
+            .withMaxShortcuts(10)
             .withEmail("account@account.com")
             .build();
 

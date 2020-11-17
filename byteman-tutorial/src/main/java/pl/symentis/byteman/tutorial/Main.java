@@ -12,7 +12,6 @@ public class Main
     {
         System.out.println( "Hello "
                 + ConfigurationSingleton.
-                getInstance().
-                getOrgCode("symentis") );
+                getInstance().getProperty() );
     }
 }

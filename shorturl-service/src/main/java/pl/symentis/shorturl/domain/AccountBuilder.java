@@ -1,13 +1,13 @@
 package pl.symentis.shorturl.domain;
 
-public final class AccountBuilder {
+public class AccountBuilder {
     private String name;
     private String email;
     private String taxnumber;
     private long maxShortcuts;
     private ExpiryPolicy defaultExpiryPolicy;
 
-    private AccountBuilder() {
+    AccountBuilder() {
     }
 
     public static AccountBuilder accountBuilder() {

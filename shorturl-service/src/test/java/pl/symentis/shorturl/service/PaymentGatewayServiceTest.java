@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import pl.symentis.shorturl.api.PaymentGatewayCallbackAssert;
 
 import static org.awaitility.Awaitility.*;
+
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -22,50 +23,46 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PaymentGatewayServiceTest
-{
+public class PaymentGatewayServiceTest {
     // system under tests
     private PaymentGatewayService paymentGatewayService;
     private PaymentGatewayMock paymentGateway;
 
     @BeforeEach
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         RestTemplate restTemplate = new RestTemplateBuilder()
-                .messageConverters( new MappingJackson2HttpMessageConverter( objectMapper ) ).build();
-        paymentGatewayService = new DefaultPaymentGatewayService( restTemplate, new PaymentGatewayProperties( new URL( "http://localhost:9090/gateway/payments" )) );
-        paymentGateway = PaymentGatewayMock.create( paymentGatewayService::completeRecharge ).start();
+                .messageConverters(new MappingJackson2HttpMessageConverter(objectMapper)).build();
+        paymentGatewayService = new DefaultPaymentGatewayService(restTemplate, new PaymentGatewayProperties(new URL("http://localhost:9090/gateway/payments")));
+        paymentGateway = PaymentGatewayMock.create(paymentGatewayService::completeRecharge).start();
     }
 
     @AfterEach
-    public void tearDown() throws InterruptedException
-    {
+    public void tearDown() throws InterruptedException {
         paymentGateway.shutdown();
     }
 
     @Test
-    void rechargeAndCallbackPayment() throws MalformedURLException, RestClientException, URISyntaxException
-    {
-        PaymentRequest paymentRequest = new PaymentRequest( 
-                "random@random.org", 
-                BigDecimal.valueOf( 50 ),
-                Currency.getInstance( "PLN" ), 
-                new URL( "http://localhost:9090/payments/callback" ) );
-        
+    void rechargeAndCallbackPayment() throws MalformedURLException, RestClientException, URISyntaxException {
+        PaymentRequest paymentRequest = new PaymentRequest(
+                "random@random.org",
+                BigDecimal.valueOf(50),
+                Currency.getInstance("PLN"),
+                new URL("http://localhost:9090/payments/callback"));
+
         UUID randomUUID = UUID.randomUUID();
-        
-        paymentGateway.when( paymentRequest )
-            .then( () -> new PaymentResponse( randomUUID, PaymentStatus.OK ) )
-            .callback( () -> new PaymentCallbackRequest( randomUUID, PaymentStatus.SUCCESS ) );
-        
-        PaymentResponse paymentResponse = paymentGatewayService.recharge( paymentRequest );
-        
+
+        paymentGateway.when(paymentRequest)
+                .then(() -> new PaymentResponse(randomUUID, PaymentStatus.OK))
+                .callback(() -> new PaymentCallbackRequest(randomUUID, PaymentStatus.SUCCESS));
+
+        PaymentResponse paymentResponse = paymentGatewayService.recharge(paymentRequest);
+
         await()
-            .atMost( 5, TimeUnit.SECONDS )
-            .untilAsserted(
-                () -> assertThat(paymentGatewayService.paymentStatus( paymentResponse.getUuid() ))
-                        .isEqualByComparingTo(PaymentStatus.SUCCESS )
-            );
+                .atMost(5, TimeUnit.SECONDS)
+                .untilAsserted(
+                        () -> assertThat(paymentGatewayService.paymentStatus(paymentResponse.getUuid()))
+                                .isEqualByComparingTo(PaymentStatus.SUCCESS)
+                );
     }
 }
