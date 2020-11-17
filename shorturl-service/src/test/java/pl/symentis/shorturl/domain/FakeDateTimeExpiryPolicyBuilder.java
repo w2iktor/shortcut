@@ -1,22 +1,32 @@
 package pl.symentis.shorturl.domain;
 
+import com.devskiller.jfairy.Fairy;
+
 import java.time.LocalDateTime;
 
 public class FakeDateTimeExpiryPolicyBuilder {
     private LocalDateTime validUntil;
+    private static Fairy fairy = Fairy.builder()
+            .build();
 
     public FakeDateTimeExpiryPolicyBuilder withRandomValidUntil(){
-        validUntil = RandomDateTimeFactory.generateRandomDateTime();
+        validUntil = fairy
+                .dateProducer()
+                .randomDateBetweenYears(1950, 2100);
         return this;
     }
 
     public FakeDateTimeExpiryPolicyBuilder withFutureValidUntil(){
-        validUntil = RandomDateTimeFactory.generateFutureDateTime();
+        validUntil = fairy
+                .dateProducer()
+                .randomDateInTheFuture();
         return this;
     }
 
     public FakeDateTimeExpiryPolicyBuilder withPastValidUntil(){
-        validUntil = RandomDateTimeFactory.generatePastDateTime();
+        validUntil = fairy
+                .dateProducer()
+                .randomDateInThePast(50);
         return this;
     }
 

@@ -6,18 +6,12 @@ import org.jboss.byteman.contrib.bmunit.WithByteman;
 import org.junit.jupiter.api.Test;
 
 @WithByteman
-@BMUnitConfig( 
-    loadDirectory = "src/test/resources/byteman", 
-    dumpGeneratedClassesDirectory = "target",
-//    bmunitVerbose = true, 
-//    debug = true,
-    dumpGeneratedClasses = true )
-public class StaticMethodTest
-{
+@BMUnitConfig(
+        loadDirectory = "src/test/resources/byteman")
+public class StaticMethodTest {
     @Test
-    @BMScript( "mock_static_method.btm" )
-    void mock_static_method()
-    {
-        Main.main( new String[] {} );
+    @BMScript("mock_static_method.btm")
+    void mock_static_method() {
+        Main.main(new String[]{});
     }
 }

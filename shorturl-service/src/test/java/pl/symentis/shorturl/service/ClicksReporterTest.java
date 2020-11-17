@@ -10,7 +10,6 @@ import pl.symentis.shorturl.domain.Shortcut;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.awaitility.Awaitility.with;
@@ -28,7 +27,7 @@ class ClicksReporterTest {
     }
 
     @Test
-    void report_click_returns_properly_mapped_click() throws ExecutionException, InterruptedException, MalformedURLException {
+    void report_click_returns_properly_mapped_click() throws MalformedURLException {
         // given
         Shortcut shortcut = fakeShortcutBuilder()
                 .withValidExpiryPolicy()
@@ -37,11 +36,11 @@ class ClicksReporterTest {
         String referer = fairy.networkProducer().url(false);
         String agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36";
         DecodeShortcutRequest decodeShortcutRequest = decodeShortcutRequestBuilder()
-                .withIpAddress(ipAddress)
-                .withAgent(agent)
-                .withReferer(referer)
-                .withShortcut(shortcut.getShortcut())
-                .build();
+            .withIpAddress(ipAddress)
+            .withAgent(agent)
+            .withReferer(referer)
+            .withShortcut(shortcut.getShortcut())
+            .build();
 
         ClickRepository clickRepository = mock(ClickRepository.class);
         ClicksReporter sut = new ClicksReporter(clickRepository);
@@ -61,10 +60,10 @@ class ClicksReporterTest {
         // and
         Click actual = reportClickResult.getNow(null);
         assertThat(actual)
-                .hasAgent("Chrome")
-                .hasOs("Windows 10")
-                .hasIpAddress(ipAddress)
-                .hasReferer(new URL(referer));
+            .hasAgent("Chrome")
+            .hasOs("Windows 10")
+            .hasIpAddress(ipAddress)
+            .hasReferer(new URL(referer));
     }
 
 }

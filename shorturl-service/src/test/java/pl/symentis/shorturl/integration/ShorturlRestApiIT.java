@@ -1,8 +1,8 @@
 package pl.symentis.shorturl.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.RestAssured;
 import com.mongodb.MongoClient;
+import io.restassured.RestAssured;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,12 +13,11 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import pl.symentis.shorturl.api.CreateAccountRequest;
 import pl.symentis.shorturl.api.CreateShortcutRequest;
 import pl.symentis.shorturl.api.GetAccountResponse;
@@ -27,8 +26,7 @@ import pl.symentis.shorturl.api.RedirectsExpiryPolicyData;
 import java.net.URI;
 import java.net.URL;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static pl.symentis.shorturl.api.CreateAccountRequestBuilder.createAccountRequestBuilder;
@@ -47,19 +45,15 @@ public class ShorturlRestApiIT {
     ObjectMapper objectMapper;
 
     @Container
-    public static GenericContainer<?> mongo = new GenericContainer<>("mongo:3.4-xenial")
-            .withExposedPorts(27017)
-            .waitingFor(Wait.forListeningPort());
+    static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"));
 
     @TestConfiguration
     public static class MongoOverrides {
-
         @Bean
         public MongoClient mongoClient() {
-            Integer mongoPort = mongo.getMappedPort(27017);
+            Integer mongoPort = mongoDBContainer.getMappedPort(27017);
             return new MongoClient("localhost", mongoPort);
         }
-
     }
 
     @BeforeEach
@@ -171,7 +165,7 @@ public class ShorturlRestApiIT {
         CreateAccountRequest createAccountRequest = createAccountRequestBuilder()
             .withName(accountId)
             .withTaxnumber("taxnumber")
-            .withMaxShortcuts(1)
+            .withMaxShortcuts(10)
             .withEmail("account@account.com")
             .build();
 
@@ -215,7 +209,7 @@ public class ShorturlRestApiIT {
     }
 
     @Test
-    public void create_new_account() {
+    public void created_account_has_no_shortcuts() {
         String email = "account@account.com";
         String name = "acc123";
 
@@ -232,15 +226,13 @@ public class ShorturlRestApiIT {
             .post("/api/accounts")
         .then()
             .statusCode(201)
-            .header("Location", equalTo("http://localhost:" + port + "/api/accounts/acc123"))
+            .header("Location", equalTo("http://localhost:" + port +
+                    "/api/accounts/acc123"))
         .extract()
             .header("Location");
 
-        GetAccountResponse accountResponse = when()
-            .get(URI.create(location))
-        .then()
-            .statusCode(HttpStatus.OK.value())
-        .extract()
+        GetAccountResponse accountResponse =
+                RestAssured.get(URI.create(location))
             .as(GetAccountResponse.class);
 
         assertThat(accountResponse)

@@ -22,7 +22,6 @@ public class DefaultAccountsService implements AccountsService {
 
     @Autowired
     public DefaultAccountsService(AccountRepository accountRepository) {
-        super();
         this.accountRepository = accountRepository;
     }
 

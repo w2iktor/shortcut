@@ -17,4 +17,9 @@ public class ConfigurationSingleton
     {
         return "symentis";
     }
+
+    public String getOrgCode(String name){
+        String val = name;
+        return "ACC:" + val;
+    }
 }

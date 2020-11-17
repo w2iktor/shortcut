@@ -25,13 +25,12 @@ import static java.util.stream.Collectors.toList;
 import static pl.symentis.shorturl.domain.ShortcutBuilder.shortcutBuilder;
 
 @Component
-public class DefaultShortcutService implements ShortcutsService{
+public class DefaultShortcutService implements ShortcutsService {
     private final AccountRepository accountRepository;
     private final ShortcutRepository shortcutRepository;
 
     @Autowired
     public DefaultShortcutService(AccountRepository accountRepository, ShortcutRepository shortcutRepository) {
-        super();
         this.accountRepository = accountRepository;
         this.shortcutRepository = shortcutRepository;
     }
@@ -46,13 +45,11 @@ public class DefaultShortcutService implements ShortcutsService{
                     format("There is shortcut registered with path %s for another account", shortcutCode));
         }
 
-
-
         ExpiryPolicy policy = null;
-        if(policyData instanceof RedirectsExpiryPolicyData) {
-            policy = new RedirectsExpiryPolicy(((RedirectsExpiryPolicyData)policyData).getMax());
-        }else if (policyData instanceof DateTimeExpiryPolicyData) {
-            policy = new DateTimeExpiryPolicy(((DateTimeExpiryPolicyData)policyData).getValidUntil());
+        if (policyData instanceof RedirectsExpiryPolicyData) {
+            policy = new RedirectsExpiryPolicy(((RedirectsExpiryPolicyData) policyData).getMax());
+        } else if (policyData instanceof DateTimeExpiryPolicyData) {
+            policy = new DateTimeExpiryPolicy(((DateTimeExpiryPolicyData) policyData).getValidUntil());
         } else {
             policy = accountRepository.findById(accountName)
                     .map(Account::getDefaultExpiryPolicy)
