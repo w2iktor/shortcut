@@ -28,42 +28,7 @@ class ClicksReporterTest {
 
     @Test
     void report_click_returns_properly_mapped_click() throws MalformedURLException {
-        // given
-        Shortcut shortcut = fakeShortcutBuilder()
-                .withValidExpiryPolicy()
-                .build();
-        String ipAddress = fairy.networkProducer().ipAddress();
-        String referer = fairy.networkProducer().url(false);
-        String agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36";
-        DecodeShortcutRequest decodeShortcutRequest = decodeShortcutRequestBuilder()
-            .withIpAddress(ipAddress)
-            .withAgent(agent)
-            .withReferer(referer)
-            .withShortcut(shortcut.getShortcut())
-            .build();
-
-        ClickRepository clickRepository = mock(ClickRepository.class);
-        ClicksReporter sut = new ClicksReporter(clickRepository);
-
-
-        // when
-        CompletableFuture<Click> reportClickResult = sut.reportClick(decodeShortcutRequest);
-
-        // then
-        with()
-            .pollInterval(10, MILLISECONDS)
-        .then()
-            .await()
-                .atMost(120, MILLISECONDS)
-                .until(reportClickResult::isDone);
-
-        // and
-        Click actual = reportClickResult.getNow(null);
-        assertThat(actual)
-            .hasAgent("Chrome")
-            .hasOs("Windows 10")
-            .hasIpAddress(ipAddress)
-            .hasReferer(new URL(referer));
+        // use Awaitility to wait for a asynchronous operation
     }
 
 }

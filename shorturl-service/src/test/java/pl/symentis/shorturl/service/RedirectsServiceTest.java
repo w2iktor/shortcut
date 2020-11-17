@@ -19,62 +19,11 @@ class RedirectsServiceTest {
     @Test
     void click_was_reported_and_pass_to_repository_after_properly_shortcut_decode(){
         // use spy on repository
-        // given
-        Shortcut shortcut = fakeShortcutBuilder()
-            .withValidExpiryPolicy()
-            .build();
-        DecodeShortcutRequest decodeShortcutRequest = decodeShortcutRequestBuilder()
-            .withShortcut(shortcut.getShortcut())
-            .build();
-
-        ClickRepository clickRepository = mock(ClickRepository.class);
-        ClicksReporter spyClicksReporter = spy(new ClicksReporter(clickRepository));
-        ShortcutsService shortcutsService = mock(ShortcutsService.class);
-        RedirectsService sut = new DefaultRedirectsService(shortcutsService, spyClicksReporter);
-
-        when(shortcutsService.decode(decodeShortcutRequest.getShortcut()))
-            .thenReturn(Optional.of(shortcut));
-
-        // when
-        sut.getShortcutTargetUrl(decodeShortcutRequest);
-
-        // then
-        verify(spyClicksReporter)
-            .reportClick(decodeShortcutRequest);
-
-        // and
-        verify(clickRepository, timeout(Duration.ofSeconds(5).toMillis()))
-            .save(any());
     }
 
     @Test
     void click_was_reported_with_given_decode_request_after_properly_shortcut_decode(){
         // use argument capture to verify click reporting
-        // given
-        Shortcut shortcut = fakeShortcutBuilder()
-            .withValidExpiryPolicy()
-            .build();
-        DecodeShortcutRequest decodeShortcutRequest = decodeShortcutRequestBuilder()
-            .withShortcut(shortcut.getShortcut())
-            .build();
-
-        ClicksReporter clicksReporter = mock(ClicksReporter.class);
-        ShortcutsService shortcutsService = mock(ShortcutsService.class);
-        RedirectsService sut = new DefaultRedirectsService(shortcutsService, clicksReporter);
-
-        when(shortcutsService.decode(decodeShortcutRequest.getShortcut()))
-            .thenReturn(Optional.of(shortcut));
-
-        // when
-        sut.getShortcutTargetUrl(decodeShortcutRequest);
-
-        // then
-        ArgumentCaptor<DecodeShortcutRequest> argumentCaptor = ArgumentCaptor.forClass(DecodeShortcutRequest.class);
-        verify(clicksReporter)
-            .reportClick(argumentCaptor.capture());
-
-        assertThat(argumentCaptor.getValue())
-            .isSameAs(decodeShortcutRequest);
     }
 
 }

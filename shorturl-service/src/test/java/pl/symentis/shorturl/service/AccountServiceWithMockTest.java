@@ -30,65 +30,17 @@ public class AccountServiceWithMockTest {
   
   AccountsService sut;
   private AccountRepository repo;
-  private ExpiryPolicy defaultExpiryPolicy;
 
   @BeforeEach
   void setUp() {
-    repo = Mockito.mock(AccountRepository.class);
-    sut = new DefaultAccountsService(repo);
-    defaultExpiryPolicy = fakeExpiryPolicyBuilder().withRandomExipiryPolicy().build();
   }
   
   @Test
-  void create_account() {
-    // given
-    Account expected = new Account(
-        "name",
-        "mail",
-        "taxnumber",
-        1, defaultExpiryPolicy);
-    when(repo.insert(expected)).thenReturn(expected);
-    // when
-    Account actual = sut.createAccount(expected);
-    assertThat(actual)
-      .hasName("name")
-      .hasEmail("mail")
-      .hasTaxnumber("taxnumber")
-      .hasMaxShortcuts(1);
+  void account_returned_after_creation_has_properly_mapped_properties() {
   }
   
   @Test
-  void dont_create_account() {
-    // given
-    Account duplicatedAccount = fakeAccountBuilder()
-            .withName("duplicated account")
-            .build();
-    given(repo.insert(Mockito.any(Account.class)))
-            .willAnswer(new AccountAnswer());
-
-    // when
-    sut.createAccount(duplicatedAccount);
-    // and
-    Throwable throwable = catchThrowable(() -> sut.createAccount(duplicatedAccount));
-
-    // then
-    Assertions.assertThat(throwable)
-      .isInstanceOf(DuplicateAccountException.class)
-      .hasMessage("BlaBlaBla");
-    
-  }
-}
-
-class AccountAnswer implements Answer<Account> {
-  private Set<String> savedAccounts = new HashSet<>();
-
-  @Override
-  public Account answer(InvocationOnMock invocationOnMock) throws Throwable {
-    Account argument = invocationOnMock.getArgument(0);
-    if(!savedAccounts
-            .add(argument.getName())){
-      throw new DuplicateAccountException("BlaBlaBla", new Throwable());
-    }
-    return argument;
+  void try_of_creating_account_with_existing_name_throws_duplicated_account_exception() {
+    // use Answer mechanism to emulate real repository behaviour
   }
 }
