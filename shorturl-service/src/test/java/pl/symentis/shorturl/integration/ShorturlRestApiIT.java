@@ -209,7 +209,7 @@ public class ShorturlRestApiIT {
     }
 
     @Test
-    public void create_new_account() {
+    public void created_account_has_no_shortcuts() {
         String email = "account@account.com";
         String name = "acc123";
 
