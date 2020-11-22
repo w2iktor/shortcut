@@ -40,7 +40,8 @@ public class AccountServiceTest {
         @Bean
         public MongoClient mongoClient() {
             Integer mongoPort = mongo.getMappedPort(27017);
-            return new MongoClient("localhost", mongoPort);
+            String host = mongo.getHost();
+            return new MongoClient(host, mongoPort);
         }
     }
 
