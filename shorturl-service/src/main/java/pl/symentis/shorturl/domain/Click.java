@@ -19,19 +19,19 @@ public class Click {
 	private LocalDateTime localDateTime;
 	private String ipAddress;
 	private String os;
-	private String agent;
+	private String browser;
 	private URL referer;
 	
 	Click() {
 	}
 
-	Click(ObjectId id, String shortcut, LocalDateTime localDateTime, String ipAddress, String os, String agent, URL referer) {
+	Click(ObjectId id, String shortcut, LocalDateTime localDateTime, String ipAddress, String os, String browser, URL referer) {
 		this.id = id;
 		this.shortcut = shortcut;
 		this.localDateTime = localDateTime;
 		this.ipAddress = ipAddress;
 		this.os = os;
-		this.agent = agent;
+		this.browser = browser;
 		this.referer = referer;
 	}
 
@@ -55,8 +55,8 @@ public class Click {
 		return os;
 	}
 
-	public String getAgent() {
-		return agent;
+	public String getBrowser() {
+		return browser;
 	}
 
 	public URL getReferer() {

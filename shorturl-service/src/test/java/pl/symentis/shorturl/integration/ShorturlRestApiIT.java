@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoClient;
 import io.restassured.RestAssured;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,27 +23,38 @@ import pl.symentis.shorturl.api.CreateAccountRequest;
 import pl.symentis.shorturl.api.CreateShortcutRequest;
 import pl.symentis.shorturl.api.GetAccountResponse;
 import pl.symentis.shorturl.api.RedirectsExpiryPolicyData;
+import pl.symentis.shorturl.dao.AccountRepository;
+import pl.symentis.shorturl.domain.Account;
+import pl.symentis.shorturl.domain.RedirectsExpiryPolicy;
+import pl.symentis.shorturl.integration.assertions.ExtendedAccountAssert;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static pl.symentis.shorturl.api.CreateAccountRequestBuilder.createAccountRequestBuilder;
 import static pl.symentis.shorturl.api.CreateShortcutRequestBuilder.createShortcutRequestBuilder;
+import static pl.symentis.shorturl.domain.FakeAccountBuilder.fakeAccountBuilder;
+import static pl.symentis.shorturl.domain.FakeShortcutBuilder.fakeShortcutBuilder;
+import static pl.symentis.shorturl.domain.ShortcutBuilder.shortcutBuilder;
 import static pl.symentis.shorturl.integration.assertions.ExtendedAccountResponseAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @Testcontainers
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ShorturlRestApiIT {
+class ShorturlRestApiIT {
 
     @LocalServerPort
     int port;
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     @Container
     static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"));
@@ -57,28 +69,18 @@ public class ShorturlRestApiIT {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         RestAssured.port = port;
     }
 
     @Test
-    public void generated_shorturl_is_accessible_and_redirect_to_given_url() throws Exception {
-
-        String accountId = generateRandomString();
-        CreateAccountRequest createAccountRequest = createAccountRequestBuilder()
-            .withEmail("account@account.com")
-            .withMaxShortcuts(1)
-            .withName(accountId)
-            .withTaxnumber("taxnumber")
-            .build();
-
-        given()
-            .contentType("application/json")
-            .body(createAccountRequest)
-        .when()
-            .post("/api/accounts/")
-        .then()
-            .statusCode(201);
+    void generated_shorturl_is_accessible_and_redirect_to_given_url() throws Exception {
+        // given
+        Account account = TestAccountProvider.testAccountProvider(accountRepository)
+            .withAccount(fakeAccountBuilder()
+                .withMaxShortcuts(10)
+                .build())
+            .save();
 
         CreateShortcutRequest createShortcutRequest = createShortcutRequestBuilder()
             .withUrl(new URL("http://onet.pl"))
@@ -88,7 +90,7 @@ public class ShorturlRestApiIT {
         String location = given()
             .contentType("application/json")
             .body(createShortcutRequest)
-            .pathParam("accountId", accountId)
+            .pathParam("accountId", account.getName())
         .when()
             .post("/api/accounts/{accountId}/shortcuts")
         .then()
@@ -97,85 +99,76 @@ public class ShorturlRestApiIT {
         .extract()
             .header("Location");
 
-        given()
+        // when
+        String targetUrl = given()
             .redirects()
                 .follow(false)
         .when()
             .get(new URL(location))
         .then()
             .statusCode(301)
-            .header("Location", equalTo("http://onet.pl"));
+            .extract()
+            .header("Location");
+
+        // then
+        Assertions.assertThat(targetUrl)
+            .isEqualTo("http://onet.pl");
     }
 
     @Test
-    public void create_shorturl() throws Exception {
-
-        String accountId = generateRandomString();
+    void create_shorturl_add_shortcut_to_account() throws Exception {
+        // given
         String shortcut = generateRandomString();
-
-        CreateAccountRequest createAccountRequest = createAccountRequestBuilder()
-            .withName(accountId)
-            .withTaxnumber("taxnumber")
-            .withMaxShortcuts(1)
-            .withEmail("account@account.com")
-            .build();
-
-        given()
-            .contentType("application/json")
-            .body(createAccountRequest)
-        .when()
-            .post("/api/accounts/")
-        .then()
-            .statusCode(201);
-
+        Account account = TestAccountProvider.testAccountProvider(accountRepository)
+            .withAccount(fakeAccountBuilder()
+                .withMaxShortcuts(10)
+                .build())
+            .save();
         CreateShortcutRequest createShortcutRequest = createShortcutRequestBuilder()
             .withExpiry(new RedirectsExpiryPolicyData(1))
             .withUrl(new URL("http://onet.pl"))
             .build();
 
-        String location = given()
+        // when
+         given()
             .contentType("application/json")
             .body(createShortcutRequest)
-            .pathParam("accountId", accountId)
+            .pathParam("accountId", account.getName())
             .pathParam("shortcut", shortcut)
         .when()
             .put("/api/accounts/{accountId}/shortcuts/{shortcut}")
         .then()
             .statusCode(201)
-            .header("Location", startsWith("http://localhost:" + port))
-        .extract()
-            .header("Location");
+            .header("Location", startsWith("http://localhost:" + port));
 
-        given()
-            .redirects()
-            .follow(false)
-        .when()
-            .get(new URL(location))
-        .then()
-            .statusCode(301)
-            .header("Location", equalTo("http://onet.pl"));
+        // then
+        Optional<Account> accountFromDb = accountRepository.findById(account.getName());
+        ExtendedAccountAssert.assertThat(accountFromDb.get())
+            .hasOnlyShortcuts(shortcutBuilder()
+                .withExpiryPolicy(new RedirectsExpiryPolicy(1))
+                .withUrl(new URL("http://onet.pl"))
+                .withShortcut(shortcut)
+                .build());
+
     }
 
     @Test
-    public void dont_allow_to_create_two_shortcuts() throws Exception {
+    void dont_allow_to_create_two_shortcuts_with_same_same_id() throws Exception {
 
-        String accountId = generateRandomString();
-        String shortcut = generateRandomString();
-
-        CreateAccountRequest createAccountRequest = createAccountRequestBuilder()
-            .withName(accountId)
-            .withTaxnumber("taxnumber")
-            .withMaxShortcuts(10)
-            .withEmail("account@account.com")
-            .build();
-
-        given()
-            .contentType("application/json")
-            .body(createAccountRequest)
-        .when()
-            .post("/api/accounts/")
-        .then()
-            .statusCode(201);
+        // given
+        String shortcutId = "my-shortcut";
+        Account account = TestAccountProvider.testAccountProvider(accountRepository)
+            .withAccount(fakeAccountBuilder()
+                .withMaxShortcuts(10)
+                .build())
+            .withShortcuts(
+                fakeShortcutBuilder()
+                    .withValidExpiryPolicy()
+                    .withShortcut(shortcutId)
+                    .withUrl("http://onet.pl")
+                    .build()
+            )
+            .save();
 
         CreateShortcutRequest createOnetShortcutRequest = createShortcutRequestBuilder()
                 .withExpiry(new RedirectsExpiryPolicyData(1))
@@ -185,23 +178,8 @@ public class ShorturlRestApiIT {
         given()
             .contentType("application/json")
             .body(createOnetShortcutRequest)
-            .pathParam("accountId", accountId)
-            .pathParam("shortcut", shortcut)
-        .when()
-            .put("/api/accounts/{accountId}/shortcuts/{shortcut}")
-        .then()
-            .statusCode(201);
-
-        CreateShortcutRequest createWpShortcutRequest = createShortcutRequestBuilder()
-                .withExpiry(new RedirectsExpiryPolicyData(1))
-                .withUrl(new URL("http://wp.pl"))
-                .build();
-
-        given()
-            .contentType("application/json")
-            .body(createWpShortcutRequest)
-            .pathParam("accountId", accountId)
-            .pathParam("shortcut", shortcut)
+            .pathParam("accountId", account.getName())
+            .pathParam("shortcut", shortcutId)
         .when()
             .put("/api/accounts/{accountId}/shortcuts/{shortcut}")
         .then()
@@ -209,15 +187,12 @@ public class ShorturlRestApiIT {
     }
 
     @Test
-    public void created_account_has_no_shortcuts() {
-        String email = "account@account.com";
+    void newly_created_account_has_no_shortcuts() {
         String name = "acc123";
 
         CreateAccountRequest createAccountRequest = createAccountRequestBuilder()
                 .withName(name)
-                .withTaxnumber("taxnumber")
                 .withMaxShortcuts(1)
-                .withEmail(email)
                 .build();
         String location = given()
             .contentType("application/json")
@@ -236,8 +211,6 @@ public class ShorturlRestApiIT {
             .as(GetAccountResponse.class);
 
         assertThat(accountResponse)
-            .hasEmail(email)
-            .hasName(name)
             .hasNoRegisteredShortcuts();
     }
 

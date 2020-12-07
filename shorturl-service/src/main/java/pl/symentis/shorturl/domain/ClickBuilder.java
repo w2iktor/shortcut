@@ -12,7 +12,7 @@ public final class ClickBuilder {
     private LocalDateTime localDateTime;
     private String ipAddress;
     private String os;
-    private String agent;
+    private String browser;
     private URL referer;
 
     private ClickBuilder() {
@@ -47,8 +47,8 @@ public final class ClickBuilder {
         return this;
     }
 
-    public ClickBuilder withAgent(String agent) {
-        this.agent = agent;
+    public ClickBuilder withBrowser(String browser) {
+        this.browser = browser;
         return this;
     }
 
@@ -58,6 +58,6 @@ public final class ClickBuilder {
     }
 
     public Click build() {
-        return new Click(id, shortcut, localDateTime, ipAddress, os, agent, referer);
+        return new Click(id, shortcut, localDateTime, ipAddress, os, browser, referer);
     }
 }

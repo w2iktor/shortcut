@@ -60,7 +60,7 @@ class ClicksReporterTest {
         // and
         Click actual = reportClickResult.getNow(null);
         assertThat(actual)
-            .hasAgent("Chrome")
+            .hasBrowser("Chrome")
             .hasOs("Windows 10")
             .hasIpAddress(ipAddress)
             .hasReferer(new URL(referer));

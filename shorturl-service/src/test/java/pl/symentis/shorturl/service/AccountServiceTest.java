@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static pl.symentis.shorturl.domain.AccountBuilder.accountBuilder;
 import static pl.symentis.shorturl.domain.FakeAccountBuilder.fakeAccountBuilder;
 import static pl.symentis.shorturl.integration.assertions.ExtendedAccountAssert.assertThat;
 
@@ -52,9 +53,9 @@ public class AccountServiceTest {
     AccountRepository accountRepository;
 
     @Test
-    void create_account_returns_object_with_filled_all_properties() {
+    void create_account_returns_object_with_same_properties_as_saved_in_db_and_provided_expected_account() {
         // given
-        Account expected = fakeAccountBuilder()
+        Account expected = accountBuilder()
             .withName("My account")
             .withEmail("me@mydomain.com")
             .withMaxShortcuts(10)
@@ -64,25 +65,30 @@ public class AccountServiceTest {
         Account actual = sut.createAccount(expected);
 
         // then
-        assertThat(actual)
-            .hasName("My account")
-            .hasEmail("me@mydomain.com")
-            .hasMaxShortcuts(10);
+        Account savedAccount = accountRepository
+            .findById(expected.getName())
+            .orElseThrow(() -> new RuntimeException("Missing account in repository"));
+        assertThat(savedAccount)
+            .isSameAs(actual)
+            .isSameAs(expected);
     }
 
     @Test
-    void newly_created_account_does_not_have_shortcuts(){
+    void newly_created_account_does_not_have_shortcuts() {
         // given
         Account account = fakeAccountBuilder()
-                .build();
+            .build();
         accountRepository.save(account);
 
         // when
         Optional<Account> returnedAccount = sut.getAccount(account.getName());
 
         // then
+        Assertions.assertThat(returnedAccount)
+            .isPresent();
+        // and
         assertThat(returnedAccount.get())
-                .hasNoShortcuts();
+            .hasNoShortcuts();
     }
 
     @Test
@@ -105,6 +111,24 @@ public class AccountServiceTest {
             .isInstanceOf(DuplicateAccountException.class)
             .hasMessage("Account with name: 'duplicate name' already exists");
     }
+
+    @Test
+    void get_account_which_was_removed_returns_empty_optional() { // E2E scenario
+        // given
+        Account expected = fakeAccountBuilder()
+            .build();
+        accountRepository.save(expected);
+
+        // when
+        sut.removeAccount(expected.getName());
+        // and
+        Optional<Account> actual = sut.getAccount(expected.getName());
+
+        // then
+        Assertions.assertThat(actual)
+            .isEmpty();
+    }
+
     @Test
     void cannot_create_account_with_non_positive_value_of_max_shortcuts() {
         // given
@@ -158,46 +182,15 @@ public class AccountServiceTest {
         Optional<Account> actualAccount = sut.getAccount(expectedAccount.getName());
 
         // then
+        Assertions.assertThat(actualAccount)
+            .isPresent();
+        // and
         assertThat(actualAccount.get())
             .isSameAs(expectedAccount);
     }
 
     @Test
-    void created_account_has_properly_mapped_properties(){
-        // given
-        Account expected = fakeAccountBuilder()
-            .build();
-
-        // when
-        sut.createAccount(expected);
-
-        // then
-        Account savedAccount = accountRepository
-                .findById(expected.getName())
-                .orElseThrow(() -> new RuntimeException("Missing account in repository"));
-        assertThat(savedAccount)
-            .isSameAs(expected);
-    }
-
-    @Test
-    void get_account_which_was_removed_returns_empty_optional(){ // E2E scenario
-        // given
-        Account expected = fakeAccountBuilder()
-            .build();
-        accountRepository.save(expected);
-
-        // when
-        sut.removeAccount(expected.getName());
-        // and
-        Optional<Account> actual = sut.getAccount(expected.getName());
-
-        // then
-        Assertions.assertThat(actual)
-            .isEmpty();
-    }
-
-    @Test
-    void delete_non_existing_account_returns_false(){
+    void delete_non_existing_account_returns_false() {
         // when
         boolean removalResult = sut.removeAccount("NON_EXISTING_NAME");
 
@@ -207,7 +200,7 @@ public class AccountServiceTest {
     }
 
     @Test
-    void delete_existing_account_removes_it_from_system(){
+    void delete_existing_account_removes_it_from_system() {
         // given
         Account expected = fakeAccountBuilder()
             .build();

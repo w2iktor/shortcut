@@ -27,7 +27,7 @@ public class ClicksReporter {
 			UserAgent userAgent = new UserAgent(decodeShortcutRequest.getAgent());
 
 			Click click = clickBuilder()
-					.withAgent(userAgent.getBrowser().getName())
+					.withBrowser(userAgent.getBrowser().getName())
 					.withOs(userAgent.getOperatingSystem().getName())
 					.withIpAddress(decodeShortcutRequest.getIpAddress())
 					.withLocalDateTime(LocalDateTime.now())

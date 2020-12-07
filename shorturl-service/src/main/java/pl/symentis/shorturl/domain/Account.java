@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,21 +21,18 @@ public class Account {
 	private String taxnumber;
 	@Min(value = 1, message = "Max shortcuts have to be a positive number")
 	private long maxShortcuts;
-	private List<Shortcut> shortcuts;
+	private List<Shortcut> shortcuts = new ArrayList<>();
 	private ExpiryPolicy defaultExpiryPolicy;
 	
-	public Account() {
-		
+	private Account() {
 	}
 	
 	public Account(String name, String email, String taxnumber, long maxShortcuts, ExpiryPolicy defaultExpiryPolicy) {
-		super();
 		this.name = name;
 		this.email = email;
 		this.taxnumber = taxnumber;
 		this.maxShortcuts = maxShortcuts;
 		this.defaultExpiryPolicy = defaultExpiryPolicy;
-		this.shortcuts = Collections.emptyList();
 	}
 
 	public String getName() {

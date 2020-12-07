@@ -180,36 +180,10 @@
 					<artifactId>build-helper-maven-plugin</artifactId>
 					<version>3.2.0</version>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
 				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.assertj</groupId>
-										<artifactId>
-											assertj-assertions-generator-maven-plugin
-										</artifactId>
-										<versionRange>
-											[${assertj-assertions-generator-maven-plugin.version},)
-										</versionRange>
-										<goals>
-											<goal>
-												generate-assertions
-											</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
+					<groupId>org.assertj</groupId>
+					<artifactId>assertj-assertions-generator-maven-plugin</artifactId>
+					<version>2.2.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
