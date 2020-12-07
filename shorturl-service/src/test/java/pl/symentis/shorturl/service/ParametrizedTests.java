@@ -13,12 +13,28 @@ import static pl.symentis.shorturl.domain.FakeExpiryPolicyBuilder.fakeExpiryPoli
 import static pl.symentis.shorturl.domain.FakeShortcutBuilder.fakeShortcutBuilder;
 
 public class ParametrizedTests {
+    @ParameterizedTest(name = "[{index}] {0} is an expired policy")
+    @MethodSource(value = "expired_policies")
     void shortcut_with_already_expired_policy_is_expired(ExpiryPolicy expiredShortcutPolicy) {
+        // when
+        Shortcut shortcut = fakeShortcutBuilder()
+            .withExpiryPolicy(expiredShortcutPolicy)
+            .build();
+
+        // then
+        ExtendedShortcutAssert.assertThat(shortcut)
+            .hasExpired();
     }
 
     private static Stream<ExpiryPolicy> expired_policies() {
-        return Stream.of(
-                /* return expired date-time and redirection policies */
+        return Stream.of(fakeExpiryPolicyBuilder()
+                .withRedirectPolicy()
+                .withMaxRedirections(-1)
+                .build(),
+            fakeExpiryPolicyBuilder()
+                .withDateTimePolicy()
+                .withPastValidUntil()
+                .build()
         );
     }
 }

@@ -40,6 +40,15 @@ public class FakeShortcutBuilder {
         return this;
     }
 
+    public FakeShortcutBuilder withUrl(String url) {
+        try {
+            this.shortcutBuilder.withUrl(new URL(url));
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        return this;
+    }
+
     public FakeShortcutBuilder withExpiryPolicy(ExpiryPolicy expiryPolicy) {
         this.shortcutBuilder.withExpiryPolicy(expiryPolicy);
         return this;

@@ -44,5 +44,25 @@ public class PaymentGatewayServiceTest {
 
     @Test
     void rechargeAndCallbackPayment() throws MalformedURLException, RestClientException, URISyntaxException {
+        PaymentRequest paymentRequest = new PaymentRequest(
+                "random@random.org",
+                BigDecimal.valueOf(50),
+                Currency.getInstance("PLN"),
+                new URL("http://localhost:9090/payments/callback"));
+
+        UUID randomUUID = UUID.randomUUID();
+
+        paymentGateway.when(paymentRequest)
+                .then(() -> new PaymentResponse(randomUUID, PaymentStatus.OK))
+                .callback(() -> new PaymentCallbackRequest(randomUUID, PaymentStatus.SUCCESS));
+
+        PaymentResponse paymentResponse = paymentGatewayService.recharge(paymentRequest);
+
+        await()
+                .atMost(5, TimeUnit.SECONDS)
+                .untilAsserted(
+                        () -> assertThat(paymentGatewayService.paymentStatus(paymentResponse.getUuid()))
+                                .isEqualByComparingTo(PaymentStatus.SUCCESS)
+                );
     }
 }

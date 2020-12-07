@@ -1,7 +1,9 @@
 package pl.symentis.shorturl.integration.assertions;
 
+import org.assertj.core.api.Assertions;
 import pl.symentis.shorturl.domain.AbstractAccountAssert;
 import pl.symentis.shorturl.domain.Account;
+import pl.symentis.shorturl.domain.Shortcut;
 
 public class ExtendedAccountAssert extends AbstractAccountAssert<ExtendedAccountAssert, Account> {
 
@@ -18,5 +20,13 @@ public class ExtendedAccountAssert extends AbstractAccountAssert<ExtendedAccount
             .hasEmail(expected.getEmail())
             .hasTaxnumber(expected.getTaxnumber())
             .hasMaxShortcuts(expected.getMaxShortcuts());
+    }
+
+    @Override
+    public ExtendedAccountAssert hasOnlyShortcuts(Shortcut ... expectedShortcut) {
+        Assertions.assertThat(actual.getShortcuts())
+            .usingRecursiveFieldByFieldElementComparator()
+            .containsOnly(expectedShortcut);
+        return this;
     }
 }

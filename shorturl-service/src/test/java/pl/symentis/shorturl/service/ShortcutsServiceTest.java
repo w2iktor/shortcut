@@ -57,15 +57,62 @@ class ShortcutsServiceTest {
 
     @Test
     void shortcut_without_expiration_policy_get_accounts_default() throws NoSuchAlgorithmException {
+        // given
+        Account account = saveRandomAccount();
+        ExpiryPolicyData expirationPolicy = null;
+
+        // when
+        String generatedShortcut = sut.generate(account.getName(), FakeUrl.generateRandomUrl(), expirationPolicy);
+
+        // then
+        Optional<Shortcut> actualShortcut = shortcutRepository
+            .findByShortcut(generatedShortcut);
+
+        Assertions.assertThat(actualShortcut)
+            .isNotEmpty();
+
+        assertThat(actualShortcut.get())
+            .hasExpiryPolicySameAs(account.getDefaultExpiryPolicy());
     }
 
     @Test
     void decoding_shortcut_increment_its_decode_counter() {
+        // given
+        Account account = saveRandomAccount();
+        Shortcut shortcut = fakeShortcutBuilder()
+            .withExpiryPolicy(FakeExpiryPolicyBuilder.fakeExpiryPolicyBuilder()
+                .withRedirectPolicy()
+                .withMaxRedirections(1)
+                .build())
+            .build();
+        shortcutRepository.addShortcut(account.getName(), shortcut);
+
+        // when
+        Optional<Shortcut> decodedShortcut = sut.decode(shortcut.getShortcut());
+
+        // then
+        Assertions.assertThat(decodedShortcut)
+            .isNotEmpty();
+        assertThat(decodedShortcut.get())
+            .hasDecodeCounter(1);
     }
 
     @ParameterizedTest
     @MethodSource(value = "pl.symentis.shorturl.service.ParametrizedTests#expired_policies")
     void decoding_expired_shortcut_returns_empty_response(ExpiryPolicy expiredShortcutPolicy) {
+        // given
+        Account account = saveRandomAccount();
+        Shortcut expiredShortcut = fakeShortcutBuilder()
+            .withExpiryPolicy(expiredShortcutPolicy)
+            .build();
+        shortcutRepository.addShortcut(account.getName(), expiredShortcut);
+
+        // when
+        Optional<Shortcut> decodedShortcut = sut.decode(expiredShortcut.getShortcut());
+
+        // then
+        Assertions.assertThat(decodedShortcut)
+            .isEmpty();
     }
 
     private Account saveRandomAccount() {
