@@ -74,144 +74,37 @@ class ShorturlRestApiIT {
     }
 
     @Test
-    void generated_shorturl_is_accessible_and_redirect_to_given_url() throws Exception {
-        // given
-        Account account = TestAccountProvider.testAccountProvider(accountRepository)
-            .withAccount(fakeAccountBuilder()
-                .withMaxShortcuts(10)
-                .build())
-            .save();
-
-        CreateShortcutRequest createShortcutRequest = createShortcutRequestBuilder()
-            .withUrl(new URL("http://onet.pl"))
-            .withExpiry(new RedirectsExpiryPolicyData(1))
-            .build();
-
-        String location = given()
-            .contentType("application/json")
-            .body(createShortcutRequest)
-            .pathParam("accountId", account.getName())
-        .when()
-            .post("/api/accounts/{accountId}/shortcuts")
-        .then()
-            .statusCode(201)
-            .header("Location", startsWith("http://localhost:" + port))
-        .extract()
-            .header("Location");
-
-        // when
-        String targetUrl = given()
-            .redirects()
-                .follow(false)
-        .when()
-            .get(new URL(location))
-        .then()
-            .statusCode(301)
-            .extract()
-            .header("Location");
-
-        // then
-        Assertions.assertThat(targetUrl)
-            .isEqualTo("http://onet.pl");
+    void newly_created_account_has_no_shortcuts() {
+        // use POST on "/api/accounts" with CreateAccountRequest object as a entity in order to create account
+        // verify if created account has no registered shourcuts
     }
 
     @Test
     void create_shorturl_add_shortcut_to_account() throws Exception {
-        // given
-        String shortcut = generateRandomString();
-        Account account = TestAccountProvider.testAccountProvider(accountRepository)
-            .withAccount(fakeAccountBuilder()
-                .withMaxShortcuts(10)
-                .build())
-            .save();
-        CreateShortcutRequest createShortcutRequest = createShortcutRequestBuilder()
-            .withExpiry(new RedirectsExpiryPolicyData(1))
-            .withUrl(new URL("http://onet.pl"))
-            .build();
-
-        // when
-         given()
-            .contentType("application/json")
-            .body(createShortcutRequest)
-            .pathParam("accountId", account.getName())
-            .pathParam("shortcut", shortcut)
-        .when()
-            .put("/api/accounts/{accountId}/shortcuts/{shortcut}")
-        .then()
-            .statusCode(201)
-            .header("Location", startsWith("http://localhost:" + port));
-
-        // then
-        Optional<Account> accountFromDb = accountRepository.findById(account.getName());
-        ExtendedAccountAssert.assertThat(accountFromDb.get())
-            .hasOnlyShortcuts(shortcutBuilder()
-                .withExpiryPolicy(new RedirectsExpiryPolicy(1))
-                .withUrl(new URL("http://onet.pl"))
-                .withShortcut(shortcut)
-                .build());
-
+        // use TestAccountProvider to save account in DB
+        // use PUT on "/api/accounts/{accountId}/shortcuts/{shortcut}" in order to register shortcut
+        // read account from DB to verify if it contains expected shortcut - to do that you could use
+        // ExtendedAccountAssert#hasOnlyShortcuts
     }
 
     @Test
     void dont_allow_to_create_two_shortcuts_with_same_same_id() throws Exception {
-
-        // given
-        String shortcutId = "my-shortcut";
-        Account account = TestAccountProvider.testAccountProvider(accountRepository)
-            .withAccount(fakeAccountBuilder()
-                .withMaxShortcuts(10)
-                .build())
-            .withShortcuts(
-                fakeShortcutBuilder()
-                    .withValidExpiryPolicy()
-                    .withShortcut(shortcutId)
-                    .withUrl("http://onet.pl")
-                    .build()
-            )
-            .save();
-
-        CreateShortcutRequest createOnetShortcutRequest = createShortcutRequestBuilder()
-                .withExpiry(new RedirectsExpiryPolicyData(1))
-                .withUrl(new URL("http://onet.pl"))
-                .build();
-
-        given()
-            .contentType("application/json")
-            .body(createOnetShortcutRequest)
-            .pathParam("accountId", account.getName())
-            .pathParam("shortcut", shortcutId)
-        .when()
-            .put("/api/accounts/{accountId}/shortcuts/{shortcut}")
-        .then()
-            .statusCode(409);
+        // use test provider to save account with one shortcut registered
+        // use PUT on "/api/accounts/{accountId}/shortcuts/{shortcut}" to register duplicated shortcut
+        // verify if response contains status code: Conflicted
     }
 
     @Test
-    void newly_created_account_has_no_shortcuts() {
-        String name = "acc123";
+    void generated_shorturl_is_accessible_and_redirect_to_given_url() {
+        // use TestAccountProvider to save account in DB
+        // remember to use CreateShortcutRequest for shurtcut creating action
+        // verify that create shortcut request returns status CREATED and "Location" header started from "http://localhost:"
+        // verify GET request on header value returns status 301 and "Location" header pointed to original url
 
-        CreateAccountRequest createAccountRequest = createAccountRequestBuilder()
-                .withName(name)
-                .withMaxShortcuts(1)
-                .build();
-        String location = given()
-            .contentType("application/json")
-            .body(createAccountRequest)
-        .when()
-            .post("/api/accounts")
-        .then()
-            .statusCode(201)
-            .header("Location", equalTo("http://localhost:" + port +
-                    "/api/accounts/acc123"))
-        .extract()
-            .header("Location");
-
-        GetAccountResponse accountResponse =
-                RestAssured.get(URI.create(location))
-            .as(GetAccountResponse.class);
-
-        assertThat(accountResponse)
-            .hasNoRegisteredShortcuts();
+        // following snippet instructs RestAssured to do not follow redirections
+//        given()
+//            .redirects()
+//                .follow(false)
     }
 
     private static String generateRandomString() {

@@ -42,28 +42,6 @@ class ClicksReporterTest {
             .withShortcut(shortcut.getShortcut())
             .build();
 
-        ClickRepository clickRepository = mock(ClickRepository.class);
-        ClicksReporter sut = new ClicksReporter(clickRepository);
-
-
-        // when
-        CompletableFuture<Click> reportClickResult = sut.reportClick(decodeShortcutRequest);
-
-        // then
-        with()
-            .pollInterval(10, MILLISECONDS)
-        .then()
-            .await()
-                .atMost(120, MILLISECONDS)
-                .until(reportClickResult::isDone);
-
-        // and
-        Click actual = reportClickResult.getNow(null);
-        assertThat(actual)
-            .hasBrowser("Chrome")
-            .hasOs("Windows 10")
-            .hasIpAddress(ipAddress)
-            .hasReferer(new URL(referer));
     }
 
 }

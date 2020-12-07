@@ -54,167 +54,47 @@ public class AccountServiceTest {
 
     @Test
     void create_account_returns_object_with_same_properties_as_saved_in_db_and_provided_expected_account() {
-        // given
-        Account expected = accountBuilder()
-            .withName("My account")
-            .withEmail("me@mydomain.com")
-            .withMaxShortcuts(10)
-            .build();
-
-        // when
-        Account actual = sut.createAccount(expected);
-
-        // then
-        Account savedAccount = accountRepository
-            .findById(expected.getName())
-            .orElseThrow(() -> new RuntimeException("Missing account in repository"));
-        assertThat(savedAccount)
-            .isSameAs(actual)
-            .isSameAs(expected);
+        // use ExtendedAccountAssert#isSameAs to verify assertions
+        // remember to separate READ and WRITE paths
     }
 
     @Test
     void newly_created_account_does_not_have_shortcuts() {
-        // given
-        Account account = fakeAccountBuilder()
-            .build();
-        accountRepository.save(account);
-
-        // when
-        Optional<Account> returnedAccount = sut.getAccount(account.getName());
-
-        // then
-        Assertions.assertThat(returnedAccount)
-            .isPresent();
-        // and
-        assertThat(returnedAccount.get())
-            .hasNoShortcuts();
+        // main action for this test is getAccount
     }
 
     @Test
     void cannot_create_account_with_duplicated_name() {
-        // given
-        String duplicateName = "duplicate name";
-        Account firstAccount = fakeAccountBuilder()
-            .withName(duplicateName)
-            .build();
-        sut.createAccount(firstAccount);
-        Account accountWithSameName = fakeAccountBuilder()
-            .withName(duplicateName)
-            .build();
-
-        // when
-        Throwable throwable = catchThrowable(() -> sut.createAccount(accountWithSameName));
-
-        // then
-        Assertions.assertThat(throwable)
-            .isInstanceOf(DuplicateAccountException.class)
-            .hasMessage("Account with name: 'duplicate name' already exists");
+        // please verify exception type and message
     }
 
     @Test
-    void get_account_which_was_removed_returns_empty_optional() { // E2E scenario
-        // given
-        Account expected = fakeAccountBuilder()
-            .build();
-        accountRepository.save(expected);
-
-        // when
-        sut.removeAccount(expected.getName());
-        // and
-        Optional<Account> actual = sut.getAccount(expected.getName());
-
-        // then
-        Assertions.assertThat(actual)
-            .isEmpty();
+    void get_account_which_was_removed_returns_empty_optional() {
+        // this is an E2E scenario - meaning it contains more than one action
+        // please use SUT to remove and read account
     }
 
     @Test
     void cannot_create_account_with_non_positive_value_of_max_shortcuts() {
-        // given
-        Account account = fakeAccountBuilder()
-            .withMaxShortcuts(0)
-            .build();
-
-        // when
-        Throwable throwable = catchThrowable(() -> sut.createAccount(account));
-
-        // then
-        Assertions.assertThat(throwable)
-            .isInstanceOf(ValidationException.class)
-            .hasMessageContaining("Max shortcuts have to be a positive number");
     }
 
     @Test
     void account_name_should_not_be_null_nor_empty() {
-        // given
-        Account accountWithoutName = fakeAccountBuilder()
-            .withName(null)
-            .build();
-
-        // when
-        Throwable throwable = catchThrowable(() -> sut.createAccount(accountWithoutName));
-
-        // then
-        Assertions.assertThat(throwable)
-            .isInstanceOf(ValidationException.class)
-            .hasMessageContaining("Name in account cannot be empty");
     }
 
     @Test
     void get_account_for_non_existing_account_name_returns_empty_optional() {
-        // when
-        Optional<Account> result = sut.getAccount("NON_EXISTING_NAME");
-
-        // then
-        Assertions.assertThat(result)
-            .isEmpty();
     }
 
     @Test
     void get_account_for_existing_account_name_returns_object_with_all_properties_properly_mapped() {
-        // given
-        Account expectedAccount = fakeAccountBuilder()
-            .build();
-        accountRepository.save(expectedAccount);
-
-        // when
-        Optional<Account> actualAccount = sut.getAccount(expectedAccount.getName());
-
-        // then
-        Assertions.assertThat(actualAccount)
-            .isPresent();
-        // and
-        assertThat(actualAccount.get())
-            .isSameAs(expectedAccount);
     }
 
     @Test
     void delete_non_existing_account_returns_false() {
-        // when
-        boolean removalResult = sut.removeAccount("NON_EXISTING_NAME");
-
-        // then
-        Assertions.assertThat(removalResult)
-            .isFalse();
     }
 
     @Test
     void delete_existing_account_removes_it_from_system() {
-        // given
-        Account expected = fakeAccountBuilder()
-            .build();
-        accountRepository.save(expected);
-
-        // when
-        boolean removalResult = sut.removeAccount(expected.getName());
-
-        // then
-        Assertions.assertThat(removalResult)
-            .isTrue();
-        // and
-        Optional<Account> actual = accountRepository.findById(expected.getName());
-        Assertions.assertThat(actual)
-            .isEmpty();
     }
 }

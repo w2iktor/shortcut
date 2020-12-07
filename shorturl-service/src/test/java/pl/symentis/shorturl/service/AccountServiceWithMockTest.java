@@ -32,54 +32,12 @@ public class AccountServiceWithMockTest {
 
     @Test
     void create_account_action_returns_properly_mapped_entity() {
-        // given
-        Account expected = AccountBuilder.accountBuilder()
-            .withName("account's name")
-            .withEmail("email@domain.com")
-            .withMaxShortcuts(1)
-            .withTaxnumber("taxnumber")
-            .build();
-        when(repo.insert(expected)).thenReturn(expected);
-        // when
-        Account actual = sut.createAccount(expected);
-        assertThat(actual)
-            .hasName("account's name")
-            .hasEmail("email@domain.com")
-            .hasTaxnumber("taxnumber")
-            .hasMaxShortcuts(1);
+        // using mock emulate inserting entity into DB
     }
 
     @Test
     void create_account_with_duplicated_name_throws_duplicate_account_exception() {
-        // given
-        Account duplicatedAccount = fakeAccountBuilder()
-            .withName("duplicated account")
-            .build();
-        given(repo.insert(Mockito.any(Account.class)))
-            .willAnswer(new AccountAnswer());
+        // use Answers mechanism to emulate exceptions during inserting duplicated entity
 
-        // when
-        sut.createAccount(duplicatedAccount);
-        // and
-        Throwable throwable = catchThrowable(() -> sut.createAccount(duplicatedAccount));
-
-        // then
-        Assertions.assertThat(throwable)
-            .isInstanceOf(DuplicateAccountException.class)
-            .hasMessage("BlaBlaBla");
-
-    }
-}
-
-class AccountAnswer implements Answer<Account> {
-    private Set<String> savedAccounts = new HashSet<>();
-
-    @Override
-    public Account answer(InvocationOnMock invocationOnMock) throws Throwable {
-        Account argument = invocationOnMock.getArgument(0);
-        if (!savedAccounts.add(argument.getName())) {
-            throw new DuplicateAccountException("BlaBlaBla", new Throwable());
-        }
-        return argument;
     }
 }
