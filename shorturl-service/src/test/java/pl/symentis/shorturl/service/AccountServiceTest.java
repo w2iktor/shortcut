@@ -14,6 +14,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import pl.symentis.shorturl.dao.AccountRepository;
 import pl.symentis.shorturl.domain.Account;
 
@@ -32,7 +33,7 @@ import static pl.symentis.shorturl.integration.assertions.ExtendedAccountAssert.
 public class AccountServiceTest {
 
     @Container
-    public static GenericContainer<?> mongo = new GenericContainer<>("mongo:3.4-xenial")
+    public static GenericContainer<?> mongo = new GenericContainer<>(DockerImageName.parse("mongo:4.0.10"))
         .withExposedPorts(27017)
         .waitingFor(Wait.forListeningPort()); // !!!
 

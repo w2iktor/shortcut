@@ -53,9 +53,6 @@ class ShorturlRestApiIT {
     @Autowired
     ObjectMapper objectMapper;
 
-    @Autowired
-    private AccountRepository accountRepository;
-
     @Container
     static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"));
 

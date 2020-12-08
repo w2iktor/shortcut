@@ -15,6 +15,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import pl.symentis.shorturl.api.ExpiryPolicyData;
 import pl.symentis.shorturl.dao.AccountRepository;
 import pl.symentis.shorturl.dao.ShortcutRepository;
@@ -33,7 +34,7 @@ import static pl.symentis.shorturl.integration.assertions.ExtendedShortcutAssert
 class ShortcutsServiceTest {
 
     @Container
-    public static GenericContainer<?> mongo = new GenericContainer<>("mongo:3.4-xenial")
+    public static GenericContainer<?> mongo = new GenericContainer<>(DockerImageName.parse("mongo:4.0.10"))
         .withExposedPorts(27017)
         .waitingFor(Wait.forListeningPort());
 
