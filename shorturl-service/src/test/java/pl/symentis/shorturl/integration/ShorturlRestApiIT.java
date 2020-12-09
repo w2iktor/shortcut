@@ -26,6 +26,7 @@ import pl.symentis.shorturl.api.RedirectsExpiryPolicyData;
 import pl.symentis.shorturl.dao.AccountRepository;
 import pl.symentis.shorturl.domain.Account;
 import pl.symentis.shorturl.domain.RedirectsExpiryPolicy;
+import pl.symentis.shorturl.domain.Shortcut;
 import pl.symentis.shorturl.integration.assertions.ExtendedAccountAssert;
 
 import java.net.URI;
@@ -143,12 +144,16 @@ class ShorturlRestApiIT {
 
         // then
         Optional<Account> accountFromDb = accountRepository.findById(account.getName());
+        Assertions.assertThat(accountFromDb)
+            .isNotEmpty();
+
+        Shortcut expectedShorcut = shortcutBuilder()
+            .withExpiryPolicy(new RedirectsExpiryPolicy(1))
+            .withUrl(new URL("http://onet.pl"))
+            .withShortcut(shortcut)
+            .build();
         ExtendedAccountAssert.assertThat(accountFromDb.get())
-            .hasOnlyShortcuts(shortcutBuilder()
-                .withExpiryPolicy(new RedirectsExpiryPolicy(1))
-                .withUrl(new URL("http://onet.pl"))
-                .withShortcut(shortcut)
-                .build());
+            .hasOnlyShortcuts(expectedShorcut);
 
     }
 
